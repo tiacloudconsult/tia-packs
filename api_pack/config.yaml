@@ -2,14 +2,14 @@
 system:
   url: http://192.168.188.100/:5000
   endpoint: /api/post
-  rabbitmq_host: localhost
+  rabbitmq_host: http://mm-rabbit-rabbitmq-0.mm-rabbit-rabbitmq-headless.rabbit.svc.cluster.local
   rabbitmq_port: 5672
-  rabbitmq_username: guest
-  rabbitmq_password: guest
-  rabbitmq_exchange: myexchange
-  rabbitmq_routing_key: myqueue
+  rabbitmq_username: test
+  rabbitmq_password: test
+  rabbitmq_exchange: demo
+  rabbitmq_routing_key: demokey
   rabbitmq_vhost: /
-  rabbitmq_queue_durable: true
+  rabbitmq_queue_durable: false
 
 api_pack:
   api_key: <your_api_key_here>
