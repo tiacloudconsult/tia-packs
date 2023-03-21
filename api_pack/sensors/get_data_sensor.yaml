@@ -1,0 +1,42 @@
+---
+name: api_pack.get_data_sensor
+description: Wait for messages on a queue and trigger get_data action
+trigger:
+  type: "rabbitmq_sensor"
+  parameters:
+    host:
+      type: string
+      description: The hostname of the RabbitMQ server
+      required: true
+    port:
+      type: integer
+      description: The port number of the RabbitMQ server
+      required: true
+      default: 5672
+    username:
+      type: string
+      description: The username to use when connecting to RabbitMQ
+      required: true
+      default: guest
+    password:
+      type: string
+      description: The password to use when connecting to RabbitMQ
+      required: true
+      default: guest
+    exchange:
+      type: string
+      description: The name of the exchange to bind to
+      required: true
+      default: myexchange
+    routing_key:
+      type: string
+      description: The routing key to use when binding to the exchange
+      required: true
+      default: myqueue
+    vhost:
+      type: string
+      description: The virtual host to use when connecting to RabbitMQ
+      required: true
+      default: /
+criteria:
+  trigger.payload != null

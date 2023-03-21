@@ -1,0 +1,8 @@
+---
+name: api_pack
+version: "0.1.0"
+author: Sharhan Alhassan
+email: sharhan.alhassan@tiacloud.io
+dependencies:
+  - requests
+  - pika

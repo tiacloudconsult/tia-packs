@@ -1,0 +1,23 @@
+---
+name: api_pack.get_data
+description: Retrieve data from API endpoint
+runner_type: python-script
+enabled: true
+entry_point: get_data.py
+parameters:
+  api_url:
+    type: string
+    description: Host name of API endpoint
+    required: true
+  endpoint:
+    description: Endpoint path to fetch data from
+    type: string
+    required: true
+  headers:
+    type: object
+    description: Optional headers to include in the request
+    required: false
+    default: {}
+output:
+  type: object
+  description: The data retrieved from the API endpoint
