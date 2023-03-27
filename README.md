@@ -164,3 +164,5 @@ st2 pack install file:///opt/stackstorm/packs.dev/api_pack
 
 
 ```
+
+https://swapi.dev/api/planets/3/?format=json
