@@ -1,0 +1,8 @@
+---
+name: hello_pack
+version: "0.1.0"
+author: Sharhan Alhassan Mohammed
+email: sharhan.alhassan@tiacloud.io
+description: Pack please just work
+# dependencies:
+#   - git

@@ -1,0 +1,24 @@
+---
+name: api_pack
+version: 1.0.0
+
+api_pack:
+  api_key: <your_api_key_here>
+
+  sensors:
+    get_data:
+      host: "http://mm-rabbit-rabbitmq-0.mm-rabbit-rabbitmq-headless.rabbit.svc.cluster.local"
+      port: 5672
+      username: "test"
+      password: "test"
+      exchange: "demo"
+      routing_key: "demokey"
+      vhost: "/"
+      queue_durable: false
+
+  actions:
+    get_data:
+      api_url: "http://192.168.188.100/:5000"
+      endpoint: "/api/post"
+      headers:
+        Authorization: "Bearer {{ api_pack.api_key }}"

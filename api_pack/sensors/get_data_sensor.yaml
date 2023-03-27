@@ -1,6 +1,7 @@
 ---
 name: api_pack.get_data_sensor
 description: Wait for messages on a queue and trigger get_data action
+entry_point: "get_data_sensor.py"
 trigger:
   type: "rabbitmq_sensor"
   parameters:

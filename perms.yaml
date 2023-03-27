@@ -1,0 +1,78 @@
+name: pack_management
+description: Allows a user to install, register, and modify packs only
+permission_grants:
+  -
+    permission_types:
+       - "pack_list"
+       - "pack_install"
+       - "pack_uninstall"
+       - "pack_create"
+       - "pack_register"
+       - "pack_config"
+       - "pack_search"
+       - "runner_type_list"
+  -
+    resource_uid: "action:packs:install"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:uninstall"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:delete"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:setup_virtualenv"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:get"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:get_config"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:get_pack_dependencies"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:get_pack_warnings"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:download"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:show"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:unload"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:update_virtualenv"
+    permission_types:
+       - "action_execute"
+       - "action_view"
+  -
+    resource_uid: "action:packs:virtualenv_prerun"
+    permission_types:
+       - "action_execute"
+       - "action_view"

@@ -1,0 +1,5 @@
+name: hello_world
+description: A simple action that prints a greeting
+enabled: true
+runner_type: "local-shell-script"
+entry_point: "hello_world.sh"

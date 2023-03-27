@@ -1,0 +1,11 @@
+name: clone_and_list
+description: Clones a Git repository and lists its files
+enabled: true
+entry_point: clone_and_list.py
+parameters:
+  git_url:
+    type: string
+    required: true
+  git_branch:
+    type: string
+    default: main
