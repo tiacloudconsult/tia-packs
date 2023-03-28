@@ -9,8 +9,3 @@ parameters:
     type: string
     description: Host name of API endpoint
     required: true
-  headers:
-    type: object
-    description: Optional headers to include in the request
-    required: false
-    default: {}
