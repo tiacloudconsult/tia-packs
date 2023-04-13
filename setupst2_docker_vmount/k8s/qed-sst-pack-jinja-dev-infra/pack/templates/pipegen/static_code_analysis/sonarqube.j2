@@ -1,0 +1,33 @@
+      jobs:
+      - job: SonarScan
+        displayName: 'Sonar Scan'
+        pool: 
+          name: $(windows_build_agent_pool)
+        steps:
+          - task: JavaToolInstaller@0
+            inputs:
+              versionSpec: '8'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+          
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '.'
+
+          - task: SonarQubePrepare@5
+            inputs:
+              SonarQube: $(sonarqube_service_connection)
+              scannerMode: 'CLI'
+              configMode: 'file'
+              configFile: '.cicd/sonar-project.properties'
+              extraProperties: |
+                sonar.exclusions=**/*.bin
+          
+          - task: SonarQubeAnalyze@5
+          
+          - task: SonarQubePublish@5
+            inputs:
+              pollingTimeoutSec: '300'

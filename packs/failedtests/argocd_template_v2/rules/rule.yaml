@@ -1,0 +1,29 @@
+name: argocd_template
+description: Install required dependencies and clone the Git repository (webhook)
+trigger:
+  type: core.st2.webhook
+  parameters:
+    url: https://localhost:82/api/v1/webhooks/argocd_template
+    trigger_on: post
+    use_https: true
+  output:
+    config_template:
+      type: string
+      required: true
+    config_file:
+      type: string
+      required: true
+    clone_dir:
+      type: string
+      required: true
+    branch:
+      type: string
+      required: true
+    repo_url:
+      type: string
+      required: true
+    input_vars:
+      type: "object"
+      required: false
+action:
+  configGen

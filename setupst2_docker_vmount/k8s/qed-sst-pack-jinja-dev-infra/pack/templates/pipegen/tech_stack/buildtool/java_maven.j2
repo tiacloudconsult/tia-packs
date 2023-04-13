@@ -1,0 +1,27 @@
+      - job: {{ tech_stack }}_build
+        displayName: 'Java Maven Build'
+        pool:
+          vmImage: ubuntu-latest
+        variables:
+          mavenPomFilePath: {{ '${{ variables.mavenPomFilePath }}' }}
+          codeCoverageTool: {{ '${{ variables.java_codeCoverageTool }}' }}
+        steps:
+          - task: Maven@3
+            inputs:
+              mavenPomFile: '$(mavenPomFilePath)'
+              goals: 'package'
+              options: '--errors --fail-at-end --show-version --batch-mode'  
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              testRunTitle: 'UnitTest_$(Build.BuildId)'
+              codeCoverageToolOption: '$(codeCoverageTool)'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.8'
+              mavenVersionOption: 'Default'
+            displayName: 'Build & Test'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'target/'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'

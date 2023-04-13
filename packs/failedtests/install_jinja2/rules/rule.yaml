@@ -1,0 +1,15 @@
+---
+    name: install_jinja2_rule
+    pack: install_jinja2
+    description: install jinja2
+    enabled: true
+
+    trigger:
+      type: core.st2.webhook   #registers a webook
+      parameters:
+        url: install_jinja2 #name of webhook POST http://10.12.233.1/api/v1/webhooks/argocd_trigger
+   
+    action:
+      ref: install_jinja2.jinja2-install
+      parameters:
+        pip_package_name: "{{ trigger.body.jinja2-install }}"

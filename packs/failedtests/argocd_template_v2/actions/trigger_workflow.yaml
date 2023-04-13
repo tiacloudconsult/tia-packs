@@ -1,0 +1,35 @@
+---
+    name: trigger_workflow
+    description: Trigger ArgoCD workflow
+    enabled: true
+    runner_type: orquesta   #workflow runner - StackStorm supports two types of workflows - Orquesta and ActionChain.
+    entry_point: workflows/trigger_workflow.yaml  #path to actual trigger, used when there are multiple actions
+
+    parameters:
+      repo_url:
+        type: string
+        description: Git repository URL
+      branch:
+        type: string
+        default: "argocd-jinja2-crossplane-tf-demo"
+        description: Git branch to clone
+      clone_dir:
+        type: string
+        description: Directory to clone Git repo into
+        default: ""
+        required: true
+      config_template:
+        type: string
+        description: Path to Jinja2 config template
+        default: ""
+        required: true
+      config_file:
+        type: string
+        description: Path to output config file
+        default: ""
+        required: true
+      input_vars:
+        type: "object"
+        description: "A dictionary of input variables and their values"
+        default: {}
+        required: false

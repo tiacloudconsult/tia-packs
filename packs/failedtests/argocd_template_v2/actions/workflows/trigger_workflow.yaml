@@ -1,0 +1,47 @@
+---
+version: '2.0'
+
+configGen:
+  description: Install dependencies and clone Git repo
+  type: direct
+
+  input:
+    - repo_url
+    - branch
+    - clone_dir
+    - config_template
+    - config_file
+    - input_vars
+
+  tasks:
+    install_dependencies:
+      action: std.local
+      input:
+        cmd: |
+          if ! command -v pip >/dev/null 2>&1; then
+            echo "pip not found, installing..."
+            apt-get install -y python3-pip
+          fi
+          if ! command -v jinja2-cli >/dev/null 2>&1; then
+            echo "Jinja2 not found, installing..."
+            pip install jinja2-cli[yaml]
+          fi
+
+    clone_repo:
+      action: argocd_template.configGen
+      input:
+        repo_url: "{{repo_url}}"
+        branch: "{{branch}}"
+        clone_dir: "{{clone_dir}}"
+        config_template: "{{config_template}}"
+        config_file: "{{config_file}}"
+        input_vars: <% ctx().input_vars %>
+
+    cleanup:
+      action: std.local
+      input:
+        cmd: |
+          rm -rf {{clone_dir}}
+
+  output:
+    - result

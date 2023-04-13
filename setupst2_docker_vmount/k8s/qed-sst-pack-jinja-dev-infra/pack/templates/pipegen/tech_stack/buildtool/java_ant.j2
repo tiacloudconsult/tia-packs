@@ -1,0 +1,23 @@
+      - job: {{ tech_stack }}_build
+        displayName: 'Java Ant Build'
+        pool:
+          vmImage: ubuntu-latest
+        variables:
+          buildFilePath: {{ '${{ variables.ant_buildFilePath }}' }}
+          codeCoverageTool: {{ '${{ variables.java_codeCoverageTool }}' }}
+        steps:
+          - task: Ant@1
+            inputs:
+              buildFile: '$(buildFilePath)'
+              publishJUnitResults: true
+              testResultsFiles: '**/TEST-*.xml'
+              codeCoverageToolOptions: '$(codeCoverageTool)'
+              codeCoverageClassFilesDirectories: 'build'
+              javaHomeOption: 'JDKVersion'
+            displayName: 'Build & Test'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'build'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'

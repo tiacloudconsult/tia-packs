@@ -1,0 +1,11 @@
+name: install_jinja2.jinja2-install
+description: Install Jinja2 using pip
+enabled: true
+entry_point: jinja2_install.py
+runner_type: python-script
+parameters:
+  pip_package_name:
+    description: Name of the pip package to install
+    type: string
+    required: true
+    default: "jinja2-cli[yaml]"

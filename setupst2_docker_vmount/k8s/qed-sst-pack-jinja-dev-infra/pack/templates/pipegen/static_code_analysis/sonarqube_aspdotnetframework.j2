@@ -1,0 +1,36 @@
+      jobs:
+      - job: SonarScan
+        displayName: 'Sonar Scan'
+        pool: 
+          name: $(windows_build_agent_pool)
+        #variables:
+          #projectKey: {{ '${{ variables.projectKey }}' }}
+        steps:
+          - task: JavaToolInstaller@0
+            inputs:
+              versionSpec: '8'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+
+          - task: SonarQubePrepare@4
+            inputs:
+              SonarQube: $(sonarqube_service_connection)
+              scannerMode: 'MSBuild'
+              projectKey: {{ project_identifier }}
+
+          - task: NuGetCommand@2
+            inputs:
+              command: 'restore'
+              restoreSolution: '$(solutionPath)'
+
+          - task: VSBuild@1
+            inputs:
+              solution: '$(solutionPath)'
+              platform: 'Any CPU'
+              configuration: 'Release'
+          
+          - task: SonarQubeAnalyze@5
+          
+          - task: SonarQubePublish@5
+            inputs:
+              pollingTimeoutSec: '300'

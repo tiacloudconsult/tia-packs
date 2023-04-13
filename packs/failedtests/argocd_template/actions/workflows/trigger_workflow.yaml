@@ -1,0 +1,33 @@
+---
+    version: "1.0"
+
+    description: A workflow to configure target Cluster onto ArgoCD cluster.
+
+    input:
+      # - repo_url
+      # - branch
+      # - clone_dir
+      - config_template
+      - config_file
+      - input_vars
+
+    tasks:
+      templateGen:
+        action: argocd_template.configGen
+        input:
+          # repo_url: <% ctx().repo_url %>
+          # branch: <% ctx().branch %>
+          # clone_dir: <% ctx().clone_dir %>
+          config_template: <% ctx().config_template %>
+          config_file: <% ctx().config_file %>
+          input_vars: <% ctx().input_vars %>
+        next:
+          - when: <% succeeded() %>
+            do:
+              - no_operation
+          - when: <% failed() %>
+            do:
+              - no_operation
+
+      no_operation:
+        action: core.noop

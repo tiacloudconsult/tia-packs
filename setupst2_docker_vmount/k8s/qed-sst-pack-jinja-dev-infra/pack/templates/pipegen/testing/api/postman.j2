@@ -1,0 +1,44 @@
+      - job: {{ api_test_tool }}  #Docker registry login to download Postman Container Image
+        displayName: 'Postman'
+        steps:
+          - task: Docker@2
+            inputs:
+              containerRegistry: $(framework_acr_service_connection) # This is the service connection used to connect with ACR
+              command: 'login'
+        
+          {% raw %} 
+          - task: Bash@3   #Download the postman image and run the container to do api tests
+            displayName: Postman Testing 
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo api_test_postman_test_path: ${{ variables.api_test_postman_test_path }}
+                echo api_test_postman_test_file: ${{ variables.api_test_postman_test_file }}
+                docker pull ${{ variables.framework_acr_registry }}/postman:latest
+                if [ ! -f $(system.defaultworkingdirectory)/${{ variables.api_test_postman_test_path }}/${{ variables.api_test_postman_test_file }} ]; then
+                  echo '[error] api_test_postman_test_file' ; exit 1 
+                else
+                  mkdir -p /tmp/postman-$(Build.BuildId)
+                  echo 'Created directory /tmp/postman-$(Build.BuildId)'
+                  cp -rf $(system.defaultworkingdirectory)/${{ variables.api_test_postman_test_path }}/${{ variables.api_test_postman_test_file }} /tmp/postman-$(Build.BuildId)
+                  echo 'Copied $(system.defaultworkingdirectory)/${{ variables.api_test_postman_test_path }}/${{ variables.api_test_postman_test_file }} to /tmp/postman-$(Build.BuildId)'
+                  docker run --rm -v /tmp/postman-$(Build.BuildId):/etc/newman -t ${{ variables.framework_acr_registry }}/postman:latest run ${{ variables.api_test_postman_test_file }} -r json --reporters cli,junit --reporter-junit-export junitReport.xml
+                  echo 'POSTMAN API report executed'
+                fi
+                  if [ '$( ls -A /tmp/postman-$(Build.BuildId) )' ]  ; then  
+                  if [ -e /tmp/postman-$(Build.BuildId)/*.xml ] ; then cp -rf /tmp/postman-$(Build.BuildId)/*.xml  $(Build.ArtifactStagingDirectory) ;  fi
+                  if [ -e /tmp/postman-$(Build.BuildId)/*.html ] ; then cp -rf /tmp/postman-$(Build.BuildId)/*.html  $(Build.ArtifactStagingDirectory) ; fi      
+                  echo 'Reports copied to $(Build.ArtifactStagingDirectory)'
+                  rm -rf /tmp/postman-$(Build.BuildId) 
+                else
+                  echo '[error] Reports directory is empty' ;
+                  exit 1
+                fi
+              failOnStderr: true
+          {% endraw %}  
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: {{ api_test_tool }}
+              publishLocation: 'Container'

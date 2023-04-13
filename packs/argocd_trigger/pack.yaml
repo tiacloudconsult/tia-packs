@@ -1,0 +1,9 @@
+---
+    ref: argocd_trigger
+    name: argocd_trigger
+    description: "A pack to configure target cluster with ArgoCD Clusters"
+    version: 1.0.0
+    author: "Francis Poku"
+    email: francis.poku@tiacloud.io
+    contributors:
+      - "francis.poku@tiacloud.io"

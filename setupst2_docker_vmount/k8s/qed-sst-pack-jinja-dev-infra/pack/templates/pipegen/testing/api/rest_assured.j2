@@ -1,0 +1,16 @@
+      - job: {{ api_test_tool }}   #maven task provided by azure to run rest api test based on suitable pom.xml
+        displayName: 'Rest Assure'
+        steps:
+          - task: Maven@3
+            displayName: 'RestAssure Testing'
+            inputs:
+              mavenPomFile: {{ '${{ variables.api_test_rest_assured_pom }}' }}
+              goals: 'clean verify'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.11'
+
+          - task: PublishBuildArtifacts@1  #publish the artifacts as pipeline artifacts
+            inputs:
+              PathtoPublish: 'target/'
+              ArtifactName: {{ api_test_tool }}
+              publishLocation: 'Container'

@@ -1,0 +1,25 @@
+      - job: {{ tech_stack }}_build
+        displayName: 'Javascript Build'
+        pool: 
+          vmImage: ubuntu-latest
+        variables:
+          installArg: {{ '${{ variables.js_installArg }}' }}
+          buildArg: {{ '${{ variables.js_buildArg }}' }}
+        steps:
+          - script: |
+              npm install $(installArg) 
+              npm run build $(buildArg) --if-present
+            displayName: 'npm install, build' 
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: '**'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/npm'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+                PathtoPublish: '$(Build.ArtifactStagingDirectory)/npm'
+                ArtifactName: 'drop'
+                publishLocation: 'Container'
+

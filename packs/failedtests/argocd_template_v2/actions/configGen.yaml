@@ -1,0 +1,78 @@
+---
+name: configGen
+description: Install dependencies and clone Git repo
+pack: argocd_template
+runner_type: "local-shell-cmd"
+
+inputs:
+  repo_url:
+    type: string
+    description: Git repository URL
+  branch:
+    type: string
+    default: "argocd-jinja2-crossplane-tf-demo"
+    description: Git branch to clone
+  clone_dir:
+    type: string
+    description: Directory to clone Git repo into
+  config_template:
+    type: string
+    description: Path to Jinja2 config template
+  config_file:
+    type: string
+    description: Path to output config file
+  input_vars:
+    type: "object"
+    description: "A dictionary of input variables and their values"
+
+output:
+  result:
+    type: string
+    description: Output of the action
+
+action:
+  cmd: |
+    if [ -d "{{clone_dir}}" ]; then
+      echo "Error: The clone directory already exists."
+      rm -rf {{clone_dir}}
+      exit 1
+    fi
+
+    GIT_PASSWORD=$(st2 key get github_token --decrypt | grep value | awk '\''{print $4}'\'')
+    mkdir {{clone_dir}}
+    git clone --branch "{{branch}}" "https://${GIT_PASSWORD}@{{repo_url}}" "{{clone_dir}}"
+    if [ $? -ne 0 ]; then
+      echo "Error: Failed to clone repository."
+      exit 1
+    fi
+
+    CONFIG_TEMPLATE={{config_template}}
+    CONFIG_FILE={{config_file}}
+    if [ ! -f "$CONFIG_TEMPLATE" ]; then
+      echo "Error: Config template not found: $CONFIG_TEMPLATE"
+      exit 1
+    fi
+    echo "Generating config file: $CONFIG_FILE"
+    echo "---" > "$CONFIG_FILE"
+    shift 5
+    while (( "$#" )); do
+      key=$(echo "$1" | cut -d= -f1)
+      value=$(echo "$1" | cut -d= -f2-)
+      output=$(jinja2 "$CONFIG_TEMPLATE" -D "$key=$value" 2>&1)
+      if [ $? -ne 0 ]; then
+        echo "Error: Failed to generate config file."
+        echo "Jinja2 error: $output"
+        exit 1
+      fi
+      echo "$output" >> "$CONFIG_FILE"
+      shift
+    done
+
+    cd "{{clone_dir}}"
+    pip install -r requirements.txt
+    echo "Action completed successfully."
+    echo "Clone directory: {{clone_dir}}"
+    echo "Config file: {{config_file}}"
+    echo "Branch: {{branch}}"
+    echo "Repo URL: {{repo_url}}"
+    echo "Config template: {{config_template}}"

@@ -1,0 +1,13 @@
+---
+    name: trigger_workflow
+    description: Trigger ArgoCD workflow
+    enabled: true
+    runner_type: orquesta   #workflow runner - StackStorm supports two types of workflows - Orquesta and ActionChain.
+    entry_point: workflows/trigger_workflow.yaml  #path to actual trigger, used when there are multiple actions
+
+    parameters:
+      input_vars:
+        type: "object"
+        description: "A dictionary of input variables and their values"
+        default: {}
+        required: false

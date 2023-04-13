@@ -1,0 +1,24 @@
+      - job: {{ tech_stack }}_build
+        displayName: 'ASP.NET VS Build'
+        pool: 
+          vmImage: windows-latest
+        variables:
+          solutionPath: {{ '${{ variables.dotnet_framework_buildSolutionPath }}' }}
+        steps: 
+          - task: NuGetCommand@2
+            inputs:
+              command: 'restore'
+              restoreSolution: '$(solutionPath)'
+
+          - task: VSBuild@1
+            inputs:
+              solution: '$(solutionPath)'
+              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+              platform: 'Any CPU'
+              configuration: 'Release'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+                PathtoPublish: '$(build.artifactStagingDirectory)'
+                ArtifactName: 'drop'
+                publishLocation: 'Container'           

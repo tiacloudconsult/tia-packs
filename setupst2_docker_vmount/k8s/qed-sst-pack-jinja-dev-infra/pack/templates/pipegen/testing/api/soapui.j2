@@ -1,0 +1,49 @@
+      - job: {{ api_test_tool }}  #Docker registry login to download soapui container Image
+        displayName: 'SoapUI'
+        steps:
+          - task: Docker@2
+            inputs:
+              containerRegistry: $(framework_acr_service_connection) # This is the service connection used to connect with ACR
+              command: 'login'
+
+          {% raw %} 
+          - task: Bash@3  #Download the soapui image and run the container to do api tests
+            displayName: SoapUI testing
+            inputs:
+              targetType: 'inline'
+              failOnStderr: true
+              script: | 
+                  echo 'soapui_app_saml : ${{ variables.api_test_soapui_app_saml }}'
+                  echo 'soapui_test_path: ${{ variables.api_test_soapui_test_path }}'
+                  echo 'soapui_property_file: ${{ variables.api_test_soapui_property_file }}'
+                  echo 'soapui_project_file: ${{ variables.api_test_soapui_project_file }}'
+                  docker pull ${{ variables.framework_acr_registry }}/soapui:latest
+                  if [ -z ${{ variables.api_test_soapui_app_saml }} ] ; then 
+                      echo '[error]soapui_app_saml is empty' ; exit 1 
+                  elif [ ! -f $(system.defaultworkingdirectory)/${{ variables.api_test_soapui_test_path }}/${{ variables.api_test_soapui_property_file }} ] ; then
+                      echo '[error] soapui_property_file  not found' ; exit 1 
+                  elif [ ! -f $(system.defaultworkingdirectory)/${{ variables.api_test_soapui_test_path }}/${{ variables.api_test_soapui_property_file }} ]; then
+                      echo '[error] soapui_project_file not found' ; exit 1 
+                  else
+                      mkdir -p /tmp/soapui-$(Build.BuildId)
+                      echo 'Created directory /tmp/soapui-$(Build.BuildId)'
+                      cp -f $(system.defaultworkingdirectory)/${{ variables.api_test_soapui_test_path }}/${{ variables.api_test_soapui_property_file }} $(system.defaultworkingdirectory)/${{ variables.api_test_soapui_test_path }}/${{ variables.api_test_soapui_project_file }} /tmp/soapui-$(Build.BuildId)
+                      echo 'Files $(system.defaultworkingdirectory)/${{ variables.api_test_soapui_test_path }}/${{ variables.api_test_soapui_property_file }} $(system.defaultworkingdirectory)/${{ variables.api_test_soapui_test_path }}/${{ variables.api_test_soapui_project_file }} copied to /tmp/soapui-$(Build.BuildId)'
+                      docker run -i --rm -v /tmp/soapui-$(Build.BuildId):/tmp ${{ variables.framework_acr_registry }}/soapui:latest -Gsoapui.properties.${{ variables.api_test_soapui_app_saml }}='/tmp/${{ variables.api_test_soapui_property_file }}' -r -j -f/tmp/report -I '/tmp/${{ variables.api_test_soapui_project_file }}'
+                      echo 'SOAP API report executed'
+                  fi
+                  if [ '$( ls -A /tmp/soapui-$(Build.BuildId)/report )' ]  ; then  
+                      cp -rf /tmp/soapui-$(Build.BuildId)/report/ $(Build.ArtifactStagingDirectory) 
+                      echo 'Reports copied to $(Build.ArtifactStagingDirectory)'
+                      rm -rf /tmp/soapui-$(Build.BuildId) 
+                  else
+                      echo '[error] Reports directory is empty'
+                  exit 1
+                  fi 
+          {% endraw %}
+          
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: {{ api_test_tool }}
+              publishLocation: 'Container'

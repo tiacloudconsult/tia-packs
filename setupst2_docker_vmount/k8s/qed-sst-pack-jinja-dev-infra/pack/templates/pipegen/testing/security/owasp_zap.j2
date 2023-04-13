@@ -1,0 +1,48 @@
+      - job: {{ security_test_tool }}  #Docker registry login to download OWASP ZAP Container Image
+        displayName: 'OWASP ZAP'
+        pool: $(linux_build_agent_pool)
+        steps:
+          - task: Docker@2
+            inputs:
+              containerRegistry: $(framework_acr_service_connection) # This is the service connection used to connect with ACR
+              command: 'login'
+          
+          {% raw %} 
+          #Download the OWASP ZAP Image and run the container to do security tests
+          - task: Bash@3 
+            displayName: 'OWASP ZAP testing'
+            inputs:
+              targetType: 'inline'
+              script: |
+                  echo security_test_owasp_zap_target_url: ${{ variables.security_test_owasp_zap_target_url }}
+                  ##echo URL http code: '$(curl --write-out '%{http_code}' --silent --output /dev/null ${{ variables.security_test_owasp_zap_target_url }})'
+                  echo security_test_owasp_zap_test_type: ${{ variables.security_test_owasp_zap_test_type }}
+                  docker pull ${{ variables.framework_acr_registry }}/zap:latest
+                  if [ -z ${{ variables.security_test_owasp_zap_test_type }} ] ; then 
+                    echo '[error] security_test_owasp_zap_test_type is empty' ; exit 1
+                  elif [ -z ${{ variables.security_test_owasp_zap_target_url }} ] ; then 
+                    echo '[error] security_test_owasp_zap_target_url is empty' ; exit 1
+                  elif [[ $(curl --write-out '%{http_code}' --silent --output /dev/null ${{ variables.security_test_owasp_zap_target_url }}) -ne 200 ]] ; then
+                    echo '[error] security_test_owasp_zap_target_url ${{ variables.security_test_owasp_zap_target_url }} is invalid' ; exit 1
+                  elif [[ '${{ variables.security_test_owasp_zap_target_url }}' != *'https://'* ]] && [[ '${{ variables.security_test_owasp_zap_target_url }}' != *'http://'* ]] ; then
+                    echo '[error] URL must start with https:// or http://' ; exit 1
+                  else
+                    docker run --rm -v /tmp:/zap/wrk/:rw -t ${{ variables.framework_acr_registry }}/zap:latest '${{ variables.security_test_owasp_zap_test_type }}' -t '${{ variables.security_test_owasp_zap_target_url }}' -g gen.conf -x OWASP-ZAP-Report.xml -r scan-report.html
+                    echo 'ZAP report executed'
+                  fi
+              
+                  if [ -f /tmp/OWASP-ZAP-Report.xml ] && [ -f /tmp/scan-report.html ]; then 
+                    cp /tmp/OWASP-ZAP-Report.xml /tmp/scan-report.html $(Build.ArtifactStagingDirectory)
+                    echo 'Reports /tmp/OWASP-ZAP-Report.xml /tmp/scan-report.html are copied to $(Build.ArtifactStagingDirectory)'
+                  else 
+                    echo 'Reports /tmp/OWASP-ZAP-Report.xml /tmp/scan-report.html are not available'
+                    exit 1
+                  fi
+              failOnStderr: true   
+          {% endraw %}
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifact: {{ security_test_tool }}
+              publishLocation: 'pipeline'

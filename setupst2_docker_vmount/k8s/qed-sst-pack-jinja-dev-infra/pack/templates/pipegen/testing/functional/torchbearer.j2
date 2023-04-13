@@ -1,0 +1,49 @@
+      - job: {{ functional_test_tool }}
+        displayName: 'Torchbearer'
+        steps:
+          - checkout: pipegen-torchbearer
+          
+          - task: Maven@3
+            displayName: 'Maven pom.xml'
+            inputs:
+              mavenPomFile: {{ '${{ variables.torchbearer_pom_xml }}' }}
+              goals: test
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.11'
+              options: test -s $(Pipeline.Workspace)/s/{{ '${{ variables.torchbearer_settings }}' }} -DPAT=$(torchbearer_pat) -Dremote={{ '${{ variables.torchbearer_grid_url }}' }} -Dgroups={{ '${{ variables.torchbearer_test_group }}' }} -DthreadCount={{ '${{ variables.torchbearer_thread_count }}' }} -Dbrowser={{ '${{ variables.torchbearer_browser }}' }} -Dheadless={{ '${{ variables.torchbearer_headless }}' }}
+          
+          - task: Maven@3
+            displayName: 'Retry failed Testcase'            
+            condition: and(failed(),eq({{ '${{ variables.torchbearer_retry_failed_test_case }}' }}, true ))
+            inputs:
+              mavenPomFile: {{ '${{ variables.torchbearer_pom_xml }}' }}
+              goals: test
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.11'
+              options: test -s $(Pipeline.Workspace)/s/{{ '${{ variables.torchbearer_settings }}' }} -DPAT=$(torchbearer_pat) -Dremote={{ '${{ variables.torchbearer_grid_url }}' }} -Dgroups={{ '${{ variables.torchbearer_test_group}}' }} -DthreadCount={{ '${{ variables.torchbearer_thread_count }}' }} -Dbrowser={{ '${{ variables.torchbearer_browser }}' }} -Dheadless={{ '${{ variables.torchbearer_headless }}' }}
+          
+          - task: CopyFiles@2
+            condition: succeededOrFailed()
+            inputs:
+              SourceFolder: '$(system.defaultworkingdirectory)/target/Outputs/'
+              Contents: |
+                      **/*.pdf
+                      **/*.html
+              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+              CleanTargetFolder: true
+
+          - task: CopyFiles@2
+            condition: succeededOrFailed()
+            inputs:
+              SourceFolder: '$(system.defaultworkingdirectory)/target/surefire-reports/'
+              Contents: |
+                      testng-failed.xml
+              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+              CleanTargetFolder: false        
+
+          - task: PublishBuildArtifacts@1
+            condition: succeededOrFailed()
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: {{ functional_test_tool }}
+              publishLocation: 'Container'

@@ -1,0 +1,11 @@
+      - job: {{ tech_stack }}_unittest
+        displayName: 'ASP.NET UnitTest'
+        pool: 
+          vmImage: windows-latest
+        steps:
+          - task: VSTest@2
+            inputs:
+              platform: 'Any CPU'
+              configuration: 'Release'
+              testRunTitle: 'UnitTest_$(Build.BuildId)'
+

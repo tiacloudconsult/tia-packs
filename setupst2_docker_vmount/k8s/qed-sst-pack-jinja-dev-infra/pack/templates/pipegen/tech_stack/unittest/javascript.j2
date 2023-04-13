@@ -1,0 +1,30 @@
+      - job: {{ tech_stack }}_unittest
+        displayName: 'Javascript UnitTest'
+        pool: 
+          vmImage: ubuntu-latest
+        variables:
+          testArg: {{ '${{ variables.js_testArg }}' }}
+          
+        steps:
+          - script: |
+              npm install
+              npm run test $(testArg)
+            displayName: 'npm test' 
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/TEST-*.xml'
+              testRunTitle: 'UnitTest_$(Build.BuildId)'
+  
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)/TEST-RESULTS.xml'
+              ArtifactName: 'drop'
+              FileCopyOptions: '**/TEST-*.xml'
+              publishLocation: 'Container'
+
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/cobertura-coverage.xml'

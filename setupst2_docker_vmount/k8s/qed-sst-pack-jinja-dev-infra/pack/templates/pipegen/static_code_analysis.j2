@@ -1,0 +1,9 @@
+{% if sonarqube == 'True' %}
+  {% if tech_stack == 'dotnet_core' %}
+    {% include 'static_code_analysis/sonarqube_dotnetcore.j2' %}
+  {% elif tech_stack == 'asp_dotnet_framework' %}
+    {% include 'static_code_analysis/sonarqube_aspdotnetframework.j2' %}
+  {% else %}
+    {% include 'static_code_analysis/sonarqube.j2' %}
+  {% endif %}
+{% endif %}

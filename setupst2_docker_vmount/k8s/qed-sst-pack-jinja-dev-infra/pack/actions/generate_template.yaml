@@ -1,0 +1,24 @@
+---
+name: generate_template
+runner_type: python-script
+description: Generate or Renders Jinja template
+enabled: true
+entry_point: generate_template.py
+
+parameters:
+  template_input:
+    type: object
+    description: Input parameters required for rendering Jinja template
+    required: true
+  template_source_path:
+    type: string
+    description: Jinja Template files path for source template
+    required: true
+  template_target_path:
+    type: string
+    description: Jinja Template files path for target template
+    required: true  
+  template_files:
+    type: object
+    description: Jinja template files mapping
+    required: true 

@@ -1,0 +1,16 @@
+---
+ref: jinja
+name: jinja
+description: Jinja pack to render template.
+keywords:
+  - jinja
+  - jinja2
+  - template
+  - jinja template 
+version: 1.0.0
+python_versions:
+  - "3"
+author: Sanjay Kumar
+email: sanjay.11.kumar@gsk.com
+contributors:
+  - Sanjay Kumar <sanjay.11.kumar@gsk.com>

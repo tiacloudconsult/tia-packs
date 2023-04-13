@@ -1,0 +1,2 @@
+# Write on update the version type as following: Patch, Minor, Major, Hotfix
+update: Patch

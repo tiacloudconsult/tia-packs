@@ -1,0 +1,15 @@
+---
+    name: argocd_trigger_rule
+    pack: argocd_trigger
+    description: Trigger ArgoCD workflow
+    enabled: true
+
+    trigger:
+      type: core.st2.webhook   #registers a webook
+      parameters:
+        url: argocd_trigger #name of webhook POST http://10.12.233.1/api/v1/webhooks/argocd_trigger
+
+    action:
+      ref: argocd_trigger.trigger_workflow
+      parameters:
+        input_vars: "{{ trigger.body.input_vars }}"

@@ -1,0 +1,13 @@
+---
+    name: configGen
+    description: generating templates
+    enabled: true
+    runner_type: local-shell-script
+    entry_point: configGen.sh
+
+    parameters:
+      input_vars:
+        type: "object"
+        description: "A dictionary of input variables and their values"
+        default: {}
+        required: false

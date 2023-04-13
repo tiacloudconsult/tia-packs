@@ -1,0 +1,13 @@
+            - task: PowerShell@2 #Creating PowerShell Remoting session and copying binaries from src to dest
+              inputs:
+                targetType: 'inline'
+                script: |
+                    $user='$(deploy_win_binarycopy_server_username)'
+                    $password = ConvertTo-SecureString '$(deploy_win_binarycopy_server_password)' -AsPlainText -Force
+                    $Cred = New-Object System.Management.Automation.PSCredential ($user, $password)
+                    Enable-PSRemoting -force
+                    Set-Item WSMan:\localhost\Client\TrustedHosts -Value '$(deploy_win_binarycopy_server_ip)' -force
+                    $session1 = New-PSSession -ComputerName '$(deploy_win_binarycopy_server_ip)' -Credential $Cred
+                    $files = Copy-Item –Path $(Agent.BuildDirectory)/drop 'provide the target path' –ToSession $session1
+                    write-host('[INFO] deployed $files ')
+                displayName: 'Copy to Target'

@@ -1,0 +1,21 @@
+      - job: TestMetrics
+        displayName: 'Publish Test Metrics'
+        dependsOn:
+          - {{ job_name }}
+        pool: 
+          name: $(linux_build_agent_pool)
+        steps:
+          - task: PythonScript@0
+            inputs:
+              scriptSource: 'inline'
+              script: |
+                import requests
+                import json
+                
+                # Trigger StackStorm workflow using Webhook REST API
+                url = '$(stackstorm_host)/api/v1/webhooks/test_metrics'
+                payload = json.dumps({ 'business_unit': '{{ business_unit }}', 'solution_group': '{{ solution_group }}', 'product_family': '{{ product_family }}', 'product_name': '{{ product_name }}', 'azure_organization': '{{ azure_organization }}', 'azure_projects': '{{ azure_projects }}', 'azure_devops_pipeline_build_id': '$(Build.BuildId)', 'azure_devops_artifacts_name': '{{ artifacts_name }}', 'azure_devops_pipeline_id': '$(System.DefinitionId)', 'azure_devops_pipeline_name': '$(Build.DefinitionName)', 'tech_stack': '{{ tech_stack }}', 'test_tool': '{{ test_tool }}' })
+                headers = {'St2-Api-Key': '$(stackstorm_api_key)' ,'Content-Type': 'application/json'}
+                
+                response = requests.request('POST', url, headers=headers, data=payload, verify=False)
+                print(response.text)

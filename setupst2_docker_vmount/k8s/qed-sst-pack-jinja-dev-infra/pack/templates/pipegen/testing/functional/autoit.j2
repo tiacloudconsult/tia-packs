@@ -1,0 +1,15 @@
+      - job: {{ functional_test_tool }}
+        displayName: 'AutoIT'
+        pool:
+          name: $(windows_build_agent_pool)  #AutoIT config should be made in Agent
+          #demands:
+          #- Agent.Name -equals Testagent  #AutoIt is installed only on Testagent
+        variables:                    
+          autoit_installation_path: {{ '${{ variables.functional_test_autoit_installation_path }}' }}
+          autoit_script_location: {{ '${{ variables.functional_test_autoit_script_location }}' }}
+        steps:
+          - task: CmdLine@2     #Runs the script and monitors windows activity.
+            displayName: 'AutoIT testing'
+            inputs:
+              script: |
+                  "$(autoit_installation_path)" /ErrorStdOut $(autoit_script_location)

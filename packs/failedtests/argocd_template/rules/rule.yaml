@@ -1,0 +1,25 @@
+---
+    name: argocd_template_rule
+    pack: argocd_template
+    description: Trigger ArgoCD workflow
+    enabled: true
+
+    trigger:
+      type: core.st2.webhook   #registers a webook
+      parameters:
+        url: argocd_template #name of webhook POST http://10.12.233.1/api/v1/webhooks/argocd_template
+
+    action:
+      ref: argocd_template.trigger_workflow
+      parameters:
+        # repo_url: "{{ trigger.body.repo_url }}"
+
+        # branch: "{{ trigger.body.branch }}"
+
+        # clone_dir: "{{ trigger.body.clone_dir }}"
+
+        config_template: "{{ trigger.body.config_template }}"
+
+        config_file: "{{ trigger.body.config_file }}"
+
+        input_vars: "{{ trigger.body.input_vars }}"

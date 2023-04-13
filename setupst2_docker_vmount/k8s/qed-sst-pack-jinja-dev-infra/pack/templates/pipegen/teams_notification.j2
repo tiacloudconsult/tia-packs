@@ -1,0 +1,337 @@
+stages:
+  - stage: FetchingData
+    displayName: 'Team Notify'
+    dependsOn:
+      {% if functional_test_tool != 'none' %}
+      - FunctionalTesting
+      {% endif %}
+      {% if performance_test_tool != 'none' %}
+      - PerformanceTesting
+      {% endif %}
+      {% if api_test_tool != 'none' %}
+      - ApiTesting
+      {% endif %}
+      {% if security_test_tool != 'none' %}
+      - SecurityTesting
+      {% endif %}
+    condition: always() 
+    pool: $(windows_build_agent_pool)
+    jobs:
+    - job: InitialJob
+      displayName: 'Initialization'
+      steps:
+      - checkout: none
+      - powershell: |
+          $url = "$(System.CollectionUri)$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/timeline?api-version=5.1"     #This REST endpoint will return you a timeline which includes details for tasks and stages.
+          $timeline = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"}                    #Status of the steps is assigned to output variable timeline using invoke rest method 
+          Write-Host "Pipeline = $($timeline | ConvertTo-Json -Depth 100)"                                                        #The output is converted to json format   
+          $arstr = @("Build.java_build","UnitTest.python_unittest","Build.javascript_build","Build.VisualStudioBuild","UnitTest.VisualStudioTest", "UnitTest.NpmTest", "CodeQuality.SonarScan","CompositionAnalysis.Blackduck","ArtifactsPublish.UniversalPackagesPublish","FunctionalTesting.torchbearer","FunctionalTesting.autoit","FunctionalTesting.uft_alm","SecurityTesting.owasp_zap","ApiTesting.postman","ApiTesting.soapui","ApiTesting.rest_assured","DockerBuild.DockerBuild","Deployment.Deploy","PerformanceTesting.jmeter","PerformanceTesting.performance_center","CICD.FunctionalTest" )    #arstr stores a list of values and @ is used to refer a set of values
+          foreach ($ar in $arstr) {
+            $test = $timeline.records | where { $_.identifier -eq "$ar" }                                                          #The pipeline records have details about all the tasks,id,result etc.
+            $result = $test.result
+            if ( $result -ne $null ) {
+              Write-Host "##vso[task.setvariable variable=$ar;isOutput=true]$result"
+            }
+            else {
+              Write-Host "##vso[task.setvariable variable=$ar;isOutput=true]skipped"
+            }
+           }
+        name: initial
+        env:
+          SYSTEM_ACCESSTOKEN: $(system.accesstoken)
+
+    #The job UTest checks for the build tool and associated unit tests. They are checked with pipeline records and the unit test name,test case status,total test cases and passed test cases are available in the output.
+          
+    - job: UTest
+      displayName: 'Unit Test Metrics'
+      dependsOn:
+      - InitialJob
+      variables:
+        {% if tech_stack == "java" and stack_build_tool == "maven" %} 
+        UResult: $[dependencies.InitialJob.outputs['initial.Build.java_build']]
+        {% endif %}
+        {% if tech_stack == "java" and stack_build_tool == "ant" %} 
+        UResult: $[dependencies.InitialJob.outputs['initial.Build.java_build']]
+        {% endif %}
+        {% if tech_stack == "python" %} 
+        UResult: $[dependencies.InitialJob.outputs['initial.UnitTest.python_unittest']]
+        {% endif %}
+        {% if tech_stack == "javascript" %} 
+        UResult: $[dependencies.InitialJob.outputs['initial.UnitTest.javascript_unittest']]
+        {% endif %}
+        {% if tech_stack == "asp_dotnet_framework" %} 
+        UResult: $[dependencies.InitialJob.outputs['initial.UnitTest.asp_dotnet_framework_unittest']]
+        {% endif %}
+        {% if tech_stack == "dotnet_core" %} 
+        UResult: $[dependencies.InitialJob.outputs['initial.UnitTest.dotnet_core_unittest']]
+        {% endif %}
+      steps:   
+      - checkout: none 
+      - powershell: |
+          if ( $UResult -ne "failed" -or $UResult -ne "skipped" ) {
+            $decodedurl= "$(System.CollectionUri)$(System.TeamProject)/_apis/test/runs?api-version= 6.0"
+            $url = [uri]::EscapeUriString($decodedurl)
+            $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$(system.accesstoken)"))
+            $result_status=Invoke-RestMethod -Uri $url -Headers @{Authorization="Basic $token"}
+            $value = $result_status.value | select name, state, totalTests, passedTests | where name -eq "UnitTest_$(Build.BuildId)"
+            $result="The unit test is completed and the results are <br /> <table style=`"border: 1px solid black;width:70%`"><tr style=`"background-color: powderblue`"><th>UnitTestName</th><th>|</th><th>Test Status</th><th>|</th><th>TotalTestcases</th><th>|</th><th>PassedTestcases</th></tr><tr><td>$($value.name)</td><th>|</th><td>$($value.state)</td><th>|</th><td>$($value.totalTests)</td><th>|</th><td>$($value.passedTests)</td></tr></table>"
+            if ( $($value.name) -ne "" ) {
+              Write-Host "##vso[task.setvariable variable=utest;isOutput=true]$result"
+              Write-Host "##vso[task.setvariable variable=total;isOutput=true]$($value.totalTests)"
+              Write-Host "##vso[task.setvariable variable=passed;isOutput=true]$($value.passedTests)"
+            }
+            else {
+              Write-Host "##vso[task.setvariable variable=utest;isOutput=true]'Unittest task is not ran.<span style=`"color:Tomato;font-size=2;`"> Need Action </span>'"\
+            }
+          }
+          else{
+            Write-Host "##vso[task.setvariable variable=utest;isOutput=true]'Unittest task is not ran.<span style=`"color:Tomato;font-size=2;`"> Need Action </span>'"
+
+          }    
+        name: utestr
+
+    # The sonar job interacts with the sonar url and fetches data about coverage, code smell and bugs in the project.  
+    - job: Sonar
+      displayName: 'Sonar Scan Metrics'
+      dependsOn: 
+      - InitialJob
+      variables:
+        SResult: $[dependencies.InitialJob.outputs['initial.CodeQuality.SonarScan']]
+      steps: 
+      - checkout: none
+      - powershell: |
+          $sonarurl = "https://sonarqube.gsk.com/"
+          $sonarbranch = "{{ github_target_repository_branch }}"
+          $sonarproject = "{{ project_identifier }}"
+          $sonartoken = "$(sonarqube_pat)"
+          $Token = [System.Text.Encoding]::UTF8.GetBytes($sonartoken + ":")
+          $TokenInBase64 = [System.Convert]::ToBase64String($Token)
+          $basicAuth = [string]::Format("Basic {0}", $TokenInBase64)
+          $Headers = @{ Authorization = $basicAuth }
+          $Headers.Add("Content-Type", "application/json")
+          Write-Host "$sonartoken"
+          $url="$sonarurl/api/measures/component_tree?component=$sonarproject&metricKeys=coverage,bugs,code_smells&branch=$sonarbranch&qualifiers=TRK"
+          Write-Host "$url"
+          $result = Invoke-RestMethod -Method Get  "$url" -Headers $Headers
+          Write-Host "value = $( $result | ConvertTo-Json )"
+          $report="The Sonar Scan is completed. Reports are <br /> <table style=`"border: 1px solid black;width:40%`"><tr style=`"background-color: powderblue`"><th>Coverage</th><th>|</th><th>Code_Smell</th><th>|</th><th>Bugs</th><th></tr><tr><td>$($result.basecomponent.measures[0].value)</td><td>|</td><td>$($result.basecomponent.measures[1].value)</td><td>|</td><td>$($result.basecomponent.measures[2].value)</td><td></table>"  
+          if ( $SResult -ne "skipped" ) {
+            Write-Host "##vso[task.setvariable variable=stest;isOutput=true]$report"
+           }
+          else {
+            Write-Host "##vso[task.setvariable variable=stest;isOutput=true]'Sonar Scan is not ran <span style=`"color:Tomato;font-style:2;`">Need Action</span>'"
+           }		    
+        name: stestr
+        
+    - job: FTest
+      displayName: 'Functional Test Metrics'
+      dependsOn:
+      - InitialJob
+      variables:
+        FResult: $[dependencies.InitialJob.outputs['initial.CICD.FunctionalTest']]
+      steps:
+      - checkout: none 
+      - powershell: |
+          if ( $FResult -ne "failed" -or $FResult -ne "skipped" ) {
+            $decodedurl= "$(System.CollectionUri)$(System.TeamProject)/_apis/test/runs?api-version= 6.0"
+            $url = [uri]::EscapeUriString($decodedurl)
+            $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$(system.accesstoken)"))
+            $result_status=Invoke-RestMethod -Uri $url -Headers @{Authorization="Basic $token"}
+            $value = $result_status.value | select name, state, totalTests, passedTests | where name -eq "FunctionalTest_$(Build.BuildId)"
+            $result="The Functional test is completed and the results are <br /> <table style=`"border: 1px solid black;width:70%`"><tr style=`"background-color: powderblue`"><th>Functional Test Name</th><th>|</th><th>Test Status</th><th>|</th><th>TotalTestcases</th><th>|</th><th>PassedTestcases</th></tr><tr><td>$($value.name)</td><th>|</th><td>$($value.state)</td><th>|</th><td>$($value.totalTests)</td><th>|</th><td>$($value.passedTests)</td></tr></table>"
+            if ( $($value.name) -ne "" ) {
+              Write-Host "##vso[task.setvariable variable=utest;isOutput=true]$result" 
+            }
+            else {
+              Write-Host "##vso[task.setvariable variable=ftest;isOutput=true]'FunctionalTest task is not ran.<span style=`"color:Tomato;font-size=2;`"> Need Action </span>'"
+            }
+          }
+          else{
+            Write-Host "##vso[task.setvariable variable=ftest;isOutput=true]'FunctionalTest task is not ran.<span style=`"color:Tomato;font-size=2;`"> Need Action </span>'"
+          }    
+        name: ftestr      
+      
+    - job: Result
+      displayName: 'Reports'
+      dependsOn:
+      - InitialJob
+      - UTest
+      - FTest
+      - Sonar
+      variables:
+        {% if tech_stack == "java" and stack_build_tool == "maven" %} 
+        BuildResult: $[dependencies.InitialJob.outputs['initial.Build.java_build']]
+        {% endif %}
+        {% if tech_stack == "java" and stack_build_tool == "ant" %} 
+        BuildResult: $[dependencies.InitialJob.outputs['initial.Build.java_build']]
+        {% endif %}
+        {% if tech_stack == "asp_dotnet_framework" %} 
+        BuildResult: $[dependencies.InitialJob.outputs['initial.Build.asp_dotnet_framework_build']]
+        {% endif %}
+        {% if tech_stack == "javascript" %} 
+        BuildResult: $[dependencies.InitialJob.outputs['initial.Build.javascript_build']]
+        {% endif %}
+        {% if tech_stack == "dotnet_core" %} 
+        BuildResult: $[dependencies.InitialJob.outputs['initial.Build.dotnet_core_build']]
+        {% endif %}
+        TestResult: $[dependencies.UTest.outputs['utestr.utest']]
+        SonarResult: $[dependencies.Sonar.outputs['stestr.stest']]
+        BlackResult: $[dependencies.InitialJob.outputs['initial.CompositionAnalysis.Blackduck']]
+        PublishResult: $[dependencies.InitialJob.outputs['initial.ArtifactsPublish.UniversalPackagesPublish']]
+        DockerResult: $[dependencies.InitialJob.outputs['initial.DockerBuild.DockerBuild']]
+        FFTestResult: $[dependencies.FTest.outputs['ftestr.ftest']]
+        DeployResult: $[dependencies.InitialJob.outputs['initial.Deployment.Deploy']]
+        {% if functional_test_tool == "torchbearer" %}
+        FTestResult: $[dependencies.InitialJob.outputs['initial.FunctionalTesting.torchbearer']]
+        {% endif %}
+        {% if functional_test_tool == "autoit" %}
+        FTestResult: $[dependencies.InitialJob.outputs['initial.FunctionalTesting.autoit']]
+        {% endif %}
+        {% if functional_test_tool == "uft_alm" %}
+        FTestResult: $[dependencies.InitialJob.outputs['initial.FunctionalTesting.uft_alm']]
+        {% endif %}
+        {% if performance_test_tool == "jmeter" %} 
+        PTestResult: $[dependencies.InitialJob.outputs['initial.PerformanceTesting.jmeter']]
+        {% endif %}
+        {% if performance_test_tool == "performance_center" %} 
+        PTestResult: $[dependencies.InitialJob.outputs['initial.PerformanceTesting.performance_center']]
+        {% endif %}
+        {% if api_test_tool == "postman" %}
+        apiTestResult: $[dependencies.InitialJob.outputs['initial.ApiTesting.postman']]
+        {% endif %}
+        {% if api_test_tool == "soapui" %}
+        apiTestResult: $[dependencies.InitialJob.outputs['initial.ApiTesting.soapui']]
+        {% endif %}
+        {% if api_test_tool == "rest_assured" %}
+        apiTestResult: $[dependencies.InitialJob.outputs['initial.ApiTesting.rest_assured']]
+        {% endif %}
+        {% if security_test_tool == "owasp_zap" %}
+        SeTestResult: $[dependencies.InitialJob.outputs['initial.SecurityTesting.owasp_zap']] 
+        {% endif %}
+      steps:
+      - checkout: none
+      - task: PostToOffice365Connector@0
+        inputs:
+          url: "$(ms_team_webhook_url)"
+          msg: |
+            <body style="font-style: courier new;font-style:2;">
+            <h2>Pipeline $(Build.DefinitionName) from  $(Build.Repository.Name):$(Build.SourceBranch) is triggered $(Build.Reason) by $(Build.SOURCEVERSIONAUTHOR)</h2>
+            <ol>
+            {% if tech_stack != "python" %} 
+            <li>The Build stage is $(BuildResult)</li>
+            {% endif %}
+            <li>$(TestResult)</li>
+            <li>The CompositionAnalysis stage is $(BlackResult)</li>
+            <li>$(SonarResult)</li>
+            <li>The ArtifactsPublish stage is $(PublishResult)</li>
+            <li>The DockerBuild stage is $(DockerResult)</li>
+            {% if functional_test_tool != "none" %} 
+            <li>The FunctionalTesting stage is $(FTestResult)</li>
+            {% endif %}
+            {% if performance_test_tool != "none"  %} 
+            <li>The PerformanceTesting stage is $(PTestResult)</li>
+            {% endif %}
+            {% if api_test_tool != "none"  %} 
+            <li>The ApiTesting stage is $(apiTestResult)</li>
+            {% endif %}
+            {% if security_test_tool != "none" %}
+            <li>The SecurityTesting stage is $(SeTestResult)</li>
+            <li>The Deploy stage is $(DeployResult)</li>
+            {% endif %}
+            </ol>
+            </body>
+
+    #- job: metric
+      #dependsOn:
+      #- InitialJob
+      #- UTest
+      #variables:
+        #{% if tech_stack == "java" and stack_build_tool == "maven" %} 
+        #UResult: $[dependencies.InitialJob.outputs["initial.Build.MavenBuild"]]
+        #{% endif %}
+        #{% if tech_stack == "java" and stack_build_tool == "ant" %} 
+        #UResult: $[dependencies.InitialJob.outputs["initial.Build.AntBuild"]]
+        {% endif %}
+        #{% if tech_stack == 'asp_dotnet_framework' %} 
+        #BuildResult: $[dependencies.InitialJob.outputs['initial.Build.VisualStudioBuild']]
+        #{% endif %}
+        #{% if tech_stack == 'javascript' %} 
+        #BuildResult: $[dependencies.InitialJob.outputs['initial.Build.NpmBuild']]
+        #{% endif %}
+        #{% if tech_stack == 'dotnet_core' %} 
+        #BuildResult: $[dependencies.InitialJob.outputs['initial.Build.DotNetCoreBuild']]
+        #{% endif %}
+        #total: $[dependencies.UTest.outputs['utestr.total']]
+        #passed: $[dependencies.UTest.outputs['utestr.passed']]    
+      #steps:
+      #- checkout: none
+
+      #- script : |
+                 #pip3 install elasticsearch
+                 #pip3 install requests
+      
+      #- task: PythonScript@0
+        #inputs:
+          #scriptSource: 'inline'
+          #arguments: '$(BuildResult)'
+          #script: |
+              #{% raw %}      
+              #import sys,os,re
+              #build_result = sys.argv[1]
+              #build_status = 0
+              #test_count = int($(total))
+              #passed_count = int($(passed))
+              #if not test_count:
+                    #test_count = 0
+                    #passed_count = 0 
+              #failed_count = 0
+              #{% endraw %}          
+              #if build_result == 'succeeded':
+                     #build_status = 1
+
+              #from elasticsearch import Elasticsearch
+              #import json, requests
+              #import calendar
+              #from datetime import *
+              #from requests import get
+              #import random
+              #import string
+
+              #def get_part_id(chars = string.ascii_uppercase + string.digits, N=10):
+                #return ''.join(random.choice(chars) for _ in range(N))
+
+              #ES_HOST='9fb5f89d13ba4a1296232474529d0e9b.us6-dev-elastic.gsk.com'
+              #ES_PORT=9243
+              #es_timestamp = datetime.today()
+              #sonar_key = '{{ project_identifier }}'
+              #sonar_branch = re.findall('./heads/(.+)', os.environ['BUILD_SOURCEBRANCH'])[0]
+      
+              #URL=f'https://sonarqube.gsk.com/api/measures/component_tree?component={sonar_key}&metricKeys=coverage,bugs,code_smells,new_vulnerabilities,security_hotspots,duplicated_blocks,new_technical_debt,ncloc&branch={sonar_branch}&qualifiers=TRK'
+              #variable = get(URL, auth=('$(sonarqube_pat)',''))
+              #body=variable.json()
+              #nclos=float(body['baseComponent']['measures'][0]['value'])
+              #coverage=float(body['baseComponent']['measures'][1]['value'])
+              #Duplicate=float(body['baseComponent']['measures'][2]['value'])
+              #code_smell=float(body['baseComponent']['measures'][3]['value'])
+              #bugs=float(body['baseComponent']['measures'][4]['value'])
+              #Hotspot=float(body['baseComponent']['measures'][5]['value'])
+              #body={'REPOSITORY_NAME': '$(Build.Repository.Name)','COVERAGE': coverage,'BUGS':bugs,'CODE_SMELL':code_smell,'Lines_OF_CODE':nclos,'Duplicate': Duplicate,'HOTSPOT': Hotspot}
+              #build_ID=$(Build.BuildID)
+              #body.update({'@timestamp': es_timestamp, 'pipeline_build_id': build_ID })
+             
+              #elastic_client = Elasticsearch([{'host': ES_HOST, 'port': ES_PORT}], http_auth=('$(es_db_user)', '$(es_db_pass)'),use_ssl=True, verify_certs=False)
+              #esr_id=get_part_id(chars=string.ascii_lowercase, N=7) + get_part_id(chars=string.ascii_lowercase, N=5) + '_' + str(build_ID)
+              
+              #ES_INDEX='pipegen_framework_sonar_01'
+              #rcvy=elastic_client.index(index=ES_INDEX,id=esr_id,body=body)
+              
+              #if build_status == 1:
+                #ES_INDEX='pipegen_framework_buid_001'
+                #body={'REPOSITORY_NAME': '$(Build.Repository.Name)'}
+                #body.update({'@timestamp': es_timestamp, 'pipeline_build_id': build_ID })
+                #rcvy=elastic_client.index(index=ES_INDEX,id=esr_id,body=body)
+              
+              #ES_INDEX='pipegen_framework_deploy_dev_001'
+              #body={'REPOSITORY_NAME': '$(Build.Repository.Name)'}
+              #body.update({'@timestamp': es_timestamp, 'pipeline_build_id': build_ID })
+              #rcvy=elastic_client.index(index=ES_INDEX,id=esr_id,body=body)

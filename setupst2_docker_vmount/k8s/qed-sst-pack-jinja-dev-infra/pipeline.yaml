@@ -1,0 +1,49 @@
+####
+# Repo: gsk-tech/qed-ssd-pipeline-libraries
+# File: pack-sync-template.yml
+# Use templates for pipelines
+# Use conditions to execute stages based on PR or branching
+# - Branch dev-infra deploy into sandbox environment
+# - Branch develop deploy into development environment
+# - Branch release-* deploy into UAT environment
+# - Branch main deploy into Production environment
+####
+
+name: qed-sst-pack-jinja_$(Date:yyyyMMddhhmmss)_$(Build.BuildId)_$(Rev:rr)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop*
+      - hotfix
+      - dev-infra
+      - release*
+      - feature*
+
+pr:
+  branches:
+    include:
+      - main
+      - develop*
+      - hotfix
+      - dev-infra
+      - release*
+
+resources:
+  repositories:
+    - repository: pipeline-libraries
+      type: githubenterprise
+      name: gsk-tech/qed-sst-pipeline-libraries
+      ref: refs/heads/main
+      endpoint: mygithub.gsk.com
+
+variables:
+  - group: qed-ssp-orchestrator-dev-pipeline-variable-group
+  
+stages:
+- template: pack-stages-template.yml@pipeline-libraries  # Template reference
+  parameters:
+      blackduck_svc: $(blackduck_svc)
+      sonarqube_svc: $(sonarqube_svc)
+

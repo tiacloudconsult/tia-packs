@@ -1,0 +1,18 @@
+    jobs:
+      - job: RepositoryScan
+        displayName: 'Trivy Repo Scan'
+        pool: 
+         vmImage: ubuntu-latest
+        variables:
+            docker_registry: {{ '${{ variables.framework_acr_registry }}' }}
+            repo_url: 'https://mygithub.gsk.com/gsk-tech/{{ project_identifier }}'
+        steps:  
+          - script: |
+              docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(Build.ArtifactStagingDirectory):/tmp '$(docker_registry)'/trivy:1.0.0 repo -f json -o /tmp/trivy_repo_scan_results.json $(repo_url)
+            displayName: TrivyRepoScan
+            
+          - task: PublishBuildArtifacts@1      #Publishing the report to Azure Artifact
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'

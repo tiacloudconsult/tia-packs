@@ -1,0 +1,8 @@
+---
+    ref: install_jinja2
+    name: install_jinja2
+    version: 1.0.0
+    description: Pack that installs Jinja2 before running a Bash script
+    authors:
+    author: "Francis Poku"
+    email: francis.poku@tiacloud.io

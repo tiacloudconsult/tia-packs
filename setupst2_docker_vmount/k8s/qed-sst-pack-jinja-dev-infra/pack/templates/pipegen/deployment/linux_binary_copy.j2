@@ -1,0 +1,19 @@
+            - task: CopyFilesOverSSH@0 #Copying binaries over ssh using the endpoint service connection
+              inputs:
+                sshEndpoint: '$(deploy_linux_binarycopy_shhEndpoint)'
+                sourceFolder: '$(Agent.BuildDirectory)/drop'
+                contents: |
+                    **/*.war
+                    **/*.ear
+                    **/*.jar
+                targetFolder: '$(deploy_linux_binarycopy_target)'
+                readyTimeout: '20000'
+
+            - task: SSH@0 #Moving the files/binaries from staging area to actual deployment path
+              inputs:
+                sshEndpoint: '$(deploy_linux_binarycopy_shhEndpoint)'
+                runOptions: 'inline'
+                inline: |
+                    cd 'provide the temporary deployment path'
+                    cp -rf * 'provide the actual deployment path'
+                readyTimeout: '20000'
