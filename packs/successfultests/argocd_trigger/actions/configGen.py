@@ -9,7 +9,7 @@ class CloneGitRepoAction(Action):
     def run(self, config_template, config_file, git_branch, input_vars):
         # Retrieve the Git credentials from StackStorm keys
         git_username = 'tiacloud-gh'
-        git_password = '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'
+        git_password = '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'
 
         # Set the Git username and email
         email_command = 'git config --global user.email "francis.poku@tiacloud.io"'

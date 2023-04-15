@@ -16,5 +16,3 @@
         config_template: "{{ trigger.body.config_template }}"
         config_file: "{{ trigger.body.config_file }}"
         git_branch: "{{ trigger.body.git_branch }}"
-        yaml_template: "{{ trigger.body.yaml_template }}"
-        yaml_file: "{{ trigger.body.yaml_file }}"

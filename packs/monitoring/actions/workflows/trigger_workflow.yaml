@@ -1,0 +1,163 @@
+---
+    version: "1.0"
+
+    description: A workflow to setup Monitoring Solution.
+
+    input:
+      - cluster_name
+      - keyvault_name
+      - business_unit
+      - solution_group
+      - product_family
+      - product_name
+      - team_name
+      - env_name
+      - requestor_mudid
+      - ad_group_name
+    
+      - email_from: "QED.Observability-Platform@gsk.com"
+      - email_to:
+         - "<% ctx().requestor_mudid %>@gsk.com"
+      - email_cc:
+         - jamuna.x.maruth@gsk.com
+      #  - "vishal.x.singhal@gsk.com"
+
+      - tools_to_install: "kubectl,helm,git"
+      - user_role: "Admin"
+      - datasource_name: "QED_Prometheus"
+      - dashboard_name: "Cluster Metrics Dashboard"
+
+      - email_template_path: "/opt/stackstorm/packs/email_smtp/templates/"
+      - email_template_file: "observability.html"
+
+      - subject: "Centralized Monitoring Framework - Notification"
+      - qedhub_product_name: "Centralized Monitoring Framework"
+      - qedhub_product_info: "productInfo"
+      - qedhub_product_confluence_link: "https://myconfluence.gsk.com/display/RnDTOSS/Observability+Platform+-+Monitoring"
+      - qedhub_product_onboarding_confluence_link: "https://myconfluence.gsk.com/display/RnDTOSS/Onboarding+Application"
+      - qedhub_product_contact_email_address: "andrew.x.dalmeny@gsk.com"
+
+    tasks:
+      initial_notification:
+        action: email_smtp.send_email
+        input:
+          email_from: <% ctx().email_from %>
+          email_to: <% ctx().email_to %>
+          email_cc: <% ctx().email_cc %>
+          subject: <% ctx().subject %>
+          template_input: {
+                  "template_path": <% ctx().email_template_path %>,
+                  "qedhub_product_name": <% ctx().qedhub_product_name %>,
+                  "qedhub_product_info": <% ctx().qedhub_product_info %>,
+                  "cluster_name": <% ctx().cluster_name %>,
+                  "product_name": <% ctx().product_name %>,
+                  "qedhub_product_status": "A StackStorm workflow has been triggered for <% ctx().product_name %> product's <% ctx().cluster_name %> cluster and you will be notified once it is completed.",
+                  "qedhub_product_action": "The process may take 10 to 15 mins. You can get more details about the product, defined at the end of this email.",
+                  "qedhub_product_confluence_link": <% ctx().qedhub_product_confluence_link %>,
+                  "qedhub_product_contact_email_address": <% ctx().qedhub_product_contact_email_address %>
+                }
+          template_path: <% ctx().email_template_path %>
+          template_file: <% ctx().email_template_file %>
+          account_info: {
+                  "password": "",
+                  "port": "25",
+                  "secure": "true",
+                  "server": "internal-smtp.gsk.com",
+                  "smtp_auth": "true",
+                  "username": <% ctx().requestor_mudid %>
+                }
+        next:
+          - when: <% succeeded() and result().result.action_flag = true %>
+            do:
+              - toolsInstall
+          - when: <% failed() %>
+            do:
+              - no_operation
+
+      toolsInstall:
+        action: toolsinstall.toolsInstall
+        input:
+          tools_to_install: <% ctx().tools_to_install %>
+
+        next:
+          - when: <% succeeded() %>
+            do:
+              - HelmInstall
+          - when: <% failed() %>
+            do:
+              - no_operation
+
+      HelmInstall:
+        action: monitoring.HelmInstall
+        input:
+          clustername: <% ctx().cluster_name %>
+          vaultname: <% ctx().keyvault_name %>
+          business_unit: <% ctx().business_unit %>
+          solution_group: <% ctx().solution_group %>
+          product_family: <% ctx().product_family %>
+          product_name: <% ctx().product_name %>
+        next:
+          - when: <% succeeded() %>
+            do:
+              - GrafanaAction
+          - when: <% failed() %>
+            do:
+              - no_operation
+      
+      GrafanaAction:
+        action: monitoring.GrafanaAction
+        input:
+          clustername: <% ctx().cluster_name %>
+          business_unit: <% ctx().business_unit %>  
+          solution_group: <% ctx().solution_group %>  
+          product_family: <% ctx().product_family %>  
+          product_name: <% ctx().product_name %>  
+          team_name: <% ctx().team_name %>  
+          env_name: <% ctx().env_name %>  
+          ad_group_name: <% ctx().ad_group_name %>
+
+        next:
+          - when: <% succeeded() %>
+            do:
+              - final_notification
+          - when: <% failed() %>
+            do:
+              - no_operation
+
+      final_notification:
+        action: email_smtp.send_email
+        input:
+          email_from: <% ctx().email_from %>
+          email_to: <% ctx().email_to %>
+          email_cc: <% ctx().email_cc %>
+          subject: <% ctx().subject %>
+          template_input: {
+                  "template_path": <% ctx().email_template_path %>,
+                  "qedhub_product_name": <% ctx().qedhub_product_name %>,
+                  "qedhub_product_info": <% ctx().qedhub_product_info %>,
+                  "qedhub_product_status": "Product onboarding process has been completed and Monitoring Solution has been provisioned for your cluster <% ctx().cluster_name %>",
+                  "Conf_Link" : <% ctx().qedhub_product_onboarding_confluence_link %>,
+                  "qedhub_product_action": "Access Grafana at https://grafana-devtest.gsk.com/login. Ensure mud ids are added to <% ctx().ad_group_name %> to allow access. Login and logout once to allow ID to sync",
+                  "qedhub_product_confluence_link": <% ctx().qedhub_product_confluence_link %>,
+                  "qedhub_product_contact_email_address": <% ctx().qedhub_product_contact_email_address %>
+                }
+          template_path: <% ctx().email_template_path %>
+          template_file: <% ctx().email_template_file %>
+          account_info: {
+                  "password": "",
+                  "port": "25",
+                  "secure": "true",
+                  "server": "internal-smtp.gsk.com",
+                  "smtp_auth": "true",
+                  "username": <% ctx().requestor_mudid %>
+                }
+        next:
+          - when: <% succeeded() and result().result.action_flag = true %>
+            do:
+              - no_operation
+          - when: <% failed() %>
+            do:
+              - no_operation
+
+      no_operation:
+        action: core.noop

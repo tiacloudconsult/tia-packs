@@ -1,0 +1,3 @@
+jinja2
+azure-cli
+ecs_logging

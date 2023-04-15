@@ -1,0 +1,48 @@
+---
+    name: trigger_workflow
+    description: Trigger for monitoring workflow.
+    enabled: true
+    runner_type: orquesta
+    entry_point: workflows/trigger_workflow.yaml
+
+    parameters:
+
+      cluster_name:
+        type: string
+        description: Cluster Name
+
+      keyvault_name:
+        type: string
+        description: Axure Keyvault Name
+
+      business_unit:
+        type: string
+        description: Business Unit Name
+      
+      solution_group:
+        type: string
+        description: Solution Group Name
+
+      product_family:
+        type: string
+        description: Product Family Name
+
+      product_name:
+        type: string
+        description: Product Name
+      
+      team_name:
+        type: string
+        description: Team Name
+
+      env_name:
+        type: string
+        description: Environment Name
+      
+      requestor_mudid:
+        type: string
+        description: Requestor MUD ID
+      
+      ad_group_name:
+        type: string
+        description: AD Group for Grafana Access

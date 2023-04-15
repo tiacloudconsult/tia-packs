@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Config
+clusters:
+  - name: {{ clusterName }}
+    cluster:
+      certificate-authority-data: {{ ca }}
+      server: {{ server }}
+contexts:
+  - name: {{ serviceAccount }}@{{ clusterName }}
+    context:
+      cluster: {{ clusterName }}
+      namespace: default
+      user: {{ serviceAccount }}
+users:
+  - name: {{ serviceAccount }}
+    user:
+      token: {{ token }}
+current-context: {{ serviceAccount }}@{{ clusterName }}

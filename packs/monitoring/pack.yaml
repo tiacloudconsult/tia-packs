@@ -1,0 +1,20 @@
+---
+    ref: monitoring
+    name: monitoring
+    description: "A pack to deploy Monitoring solution in target cluster."
+    keywords:
+      - workflow
+      - azure
+      - monitoring
+      - prometheus
+      - grafana
+      - pipeline
+    version: 1.0.0
+    author: "Jamuna Maruth"
+    email: jamuna.x.maruth@gsk.com
+    contributors:
+      - "jamuna.x.maruth@gsk.com"
+      - "jatin.8.kumar@gsk.com"
+      - "asheesh.x.tyagi@gsk.com"
+    python_versions:
+      - "3"
