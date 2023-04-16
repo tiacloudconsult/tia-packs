@@ -139,15 +139,15 @@ st2:
     # Please consult the documentation for your cluster's storage solution.
     # Some generic examples are listed under st2.packs.volumes.packs below.
     volumes:
-      enabled: false
+      enabled: true
 
-      packs: {}
+      packs:
         # mounted to /opt/stackstorm/packs
         # packs volume definition is required if st2.packs.volumes is enabled
 
         # example using persistentVolumeClaim:
-        #persistentVolumeClaim:
-        #  claim-name: pvc-st2-packs
+        persistentVolumeClaim:
+          claimName: pvc-st2-packs
 
         # example using NFS:
         #nfs:
@@ -163,16 +163,20 @@ st2:
         #    clusterNamespace: rook-ceph
         #    path: /st2/packs
 
-      virtualenvs: {}
+      virtualenvs:
         # mounted to /opt/stackstorm/virtualenvs
         # virtualenvs volume definition is required if st2.packs.volumes is enabled
         # see the examples under st2.packs.volumes.packs
+        persistentVolumeClaim:
+          claimName: pvc-st2-virtualenvs
 
-      configs: {}
+      configs:
         # mounted to /opt/stackstorm/configs
         # configs volume definition is optional, but only used if st2.packs.volumes is enabled
         # Anything in `st2.packs.configs` will be added to this volume automatically on helm install/upgrade.
         # see the examples under st2.packs.volumes.packs
+        persistentVolumeClaim:
+          claimName: pvc-st2-pack-configs
 
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer(s) in one of these modes:
@@ -271,24 +275,27 @@ securityContext: {}
 ##
 ingress:
   # As recommended, ingress is disabled by default.
-  enabled: false
+  enabled: true
   # Annotations are used to configure the ingress controller
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  annotations:
+#   cert-argocd.io/issuer: letsencrypt-production
+    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
   # Map hosts to paths
-  hosts: []
-  # - host: hostname.domain.tld
-  #   # Map paths to services
-  #   paths:
-  #     - path: /
-  #       serviceName: service
-  #       servicePort: port
+  hosts:
+  - host: st2.dev.tiacloud.io
+    # Map paths to services
+    paths:
+      - path: /
+        serviceName: st2web
+        servicePort: 81
   # Secure the Ingress by specifying a secret that contains a TLS private key and certificate
-  tls: []
-  # - secretName: chart-example-tls
+  # tls:
+  # - secretName: ssl-st2-dev
   #   hosts:
-  #     - chart-example.test
+  #     - st2.dev.tiacloud.io
   # ingressClassName: nginx-ingress
 
 ##
@@ -319,7 +326,7 @@ st2web:
   # ingress:
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
-    type: "NodePort"
+    type: "ClusterIP"
     # The hostname associated with st2web service (externalName, added to external DNS, etc.)
     hostname: ""
     # For more information regarding annotations, see
