@@ -1,0 +1,48 @@
+name: Ensure Branches
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  ensure-branches:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Create Dev Branch
+        run: |
+          if git show-ref --verify --quiet "refs/heads/dev"; then
+            echo "Dev branch already exists"
+          else
+            git branch dev
+            git push origin dev
+          fi
+
+      - name: Create UAT Branch
+        run: |
+          if git show-ref --verify --quiet "refs/heads/uat"; then
+            echo "UAT branch already exists"
+          else
+            git branch uat
+            git push origin uat
+          fi
+
+      - name: Create Prod Branch
+        run: |
+          if git show-ref --verify --quiet "refs/heads/prod"; then
+            echo "Prod branch already exists"
+          else
+            git branch prod
+            git push origin prod
+          fi
+
+      - name: Prevent Direct Pushes to Protected Branches
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" || "${{ github.ref }}" == "refs/heads/uat" || "${{ github.ref }}" == "refs/heads/prod" ]]; then
+            echo "Error: Direct pushes to protected branches are not allowed. Please create a pull request instead."
+            exit 1
+          fi
