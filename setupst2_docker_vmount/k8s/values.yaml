@@ -146,8 +146,8 @@ st2:
         # packs volume definition is required if st2.packs.volumes is enabled
 
         # example using persistentVolumeClaim:
-        persistentVolumeClaim:
-          claimName: pvc-st2-packs
+        # persistentVolumeClaim:
+        #   claimName: pvc-st2-packs
 
         # example using NFS:
         #nfs:
@@ -167,8 +167,8 @@ st2:
         # mounted to /opt/stackstorm/virtualenvs
         # virtualenvs volume definition is required if st2.packs.volumes is enabled
         # see the examples under st2.packs.volumes.packs
-        persistentVolumeClaim:
-          claimName: pvc-st2-virtualenvs
+        # persistentVolumeClaim:
+        #   claimName: pvc-st2-virtualenvs
 
       configs:
         # mounted to /opt/stackstorm/configs
@@ -289,8 +289,8 @@ ingress:
     # Map paths to services
     paths:
       - path: /
-        serviceName: st2web
-        servicePort: 81
+        serviceName: stackstorm-ha-1681832811-st2web
+        servicePort: 80
   # Secure the Ingress by specifying a secret that contains a TLS private key and certificate
   # tls:
   # - secretName: ssl-st2-dev
@@ -326,7 +326,7 @@ st2web:
   # ingress:
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
-    type: "ClusterIP"
+    type: "NodePort"
     # The hostname associated with st2web service (externalName, added to external DNS, etc.)
     hostname: ""
     # For more information regarding annotations, see
