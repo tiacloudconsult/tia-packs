@@ -1,0 +1,10 @@
+apiVersion: v2
+appVersion: 0.110.0
+dependencies:
+- name: stackstorm-ha
+  repository: https://helm.stackstorm.com/
+  version: 0.110.0
+description: An Umbrella Chart for StackStorm Gitops deployment
+name: stackstorm
+type: application
+version: 0.110.0-30

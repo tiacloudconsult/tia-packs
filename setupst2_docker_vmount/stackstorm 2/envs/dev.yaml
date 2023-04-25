@@ -1,0 +1,29 @@
+stackstorm-ha:
+  st2web:
+    replicas: 1
+  st2auth:
+    replicas: 1
+  st2api:
+    replicas: 1
+  st2stream:
+    replicas: 1
+  st2rulesengine:
+    replicas: 1
+  st2workflowengine:
+    replicas: 1
+  st2scheduler:
+    replicas: 1
+  st2notifier:
+    replicas: 1
+  st2actionrunner:
+    replicas: 3
+  redis:
+    cluster:
+      slaveCount: 1
+  mongodb:
+    replicaCount: 2
+  rabbitmq:
+    replicaCount: 1
+  st2:
+    username: AgAWMm4AemuVksRWk246nyyK8A6MppOz8KoFrL/pR4tyPNf0kQn8yvvL0ObCtJKy5o9YHMZ0q9NtVCvE4m47poELpzJTdgi9LdlYSjUZZg4GbIUwkJWvR7/OL4X47iNchZ++OTHn3xRUlsF9zNknLjbq+SovCE3vRb5g0g3b6WMFNq9remWM1CCATnjkL8e2/n7cO1R0XsX94/4fWfAevxzjvcOgpfTf4Isf4RbvDWGxLA+AzWd4/h9jX7QcvvOq+a2U/yld63JoInorqKEghPhnyyujOlBnoc3K9Q82Iatu9rFlbRhCY/zDuL9Syof2KTOErTpT/9RB0hOxNUpgft7bZUcDRFEtEDPvQ8VdvpxUiPl66CzAs/zuNdmkM2vH1YzcmnAbOqCpLcr7XPcKBqgNPtgBsa0scdvbtpntO84ws31zIKD+w97b1QNlFxZBIbTTyg6KkTzzY14JdgrTVdQwXvurkP+TcLw+JkHxTss6Fi0FrAsBmnKZsgPTsqyjJnLbn7LH9uOdSXMXYUjHxHmAUmqfniUlNJb6Zox2VTdLuiHO4nKNjuJHgrGd5r/NS6BvN0RLada0mEhadfsmSSFlMxU6JMuX5sH+efVFM2VQu7nB6FSdJn+RZXcQEEe8D/kWEUnrR7a4uYNtco/3JohWFmvzpn7Lo6DFwcW9nmXspWjEdm5wGvWmkitcD9LwG3LjHdVcuIFCKw==
+    password: AgBvKtb7nnXPplCbuu+mH+KupDR9K6+SpSoI8/x4hc4vNB9p5vSn64QYalQNhBfchkBhK27/ZzFnnn8lUc6OhbKRuP/nz/SfpjWDLzLSRX1YvkqsdvP0iiph3cVlTUFMHpGF0T59v2eKXzvQE8t/vSML7Uc0G36Pu+cuwB5FtsIQ0r15I1tUdFNliJfkuEb9g9j1GdAYSHgyMb9LBbc3ecqil+EW4B15hDitDXkLIQI5IKE/u3++srDr2opu/sjqA1AsYVuaPuFP6u55qOegfHgWwu5t8zzc5h+f7BMv8bJTnUhi2cLLmFaaN8F84SeTM7ynSQC1Vab7p6YzS/XUFAImweyn/OI3FyR4u7nLRhbtv4oCbeCU7a85Iaal/BfQW7MzK7oGxkXXxscZqiGyrqLZIzUGkqp9+NA/hUAOPdjnR5oTZ4OOPBTfXk4SUQrCqJncYvT0j7YbbjJxErC/Oy5nIlhOm1RxaOX0Gii9IXjidIEipMGRXWXNOskPOFAk26XcCThrPNSJgSZIgz8MRfasjrRTqsf6VXvBumJAd0Jcjvce6Ql3agZC9Wo7GN5mjtrA3dV+xB8NmxMJi9eO+LTytRPxFdOevjLvZt/GDR4Te79b+iw0IaT8yQ7Wa7xvS+WnIW6KPoRRhd57NPuN1M8e/Z/d7tS+ZBeTA6LsbIFYOA8pyeImznr3AOulp6JxRzNLpnkP1lYBVUU=

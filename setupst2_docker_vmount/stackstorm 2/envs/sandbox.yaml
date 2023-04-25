@@ -1,0 +1,57 @@
+stackstorm-ha:
+  st2web:
+    replicas: 1
+  st2auth:
+    replicas: 1
+  st2api:
+    replicas: 1
+  st2stream:
+    replicas: 1
+  st2rulesengine:
+    replicas: 1
+  st2workflowengine:
+    replicas: 1
+  st2scheduler:
+    replicas: 1
+  st2notifier:
+    replicas: 1
+  st2actionrunner:
+    replicas: 1
+  redis:
+    cluster:
+      slaveCount: 1
+  mongodb:
+    replicaCount: 2
+  rabbitmq:
+    replicaCount: 1
+  st2:
+    username: AgAuoemM3zBOxBsmzRYLJSK1DGUKVj7uE1XBfw37ubK6bGCpBJoGta9tiojXcC37x/Yz546a1KQsSt1aaR5E13HhAL3QBgJ28dWMg+Pz8iQKKeaZr/zggfKtES4QbTsB9CuqMQAL/2I2OcpXRPXOA2CzS9aL1zAJ6TIXBkUr5Y0NaXSohzjFsk07mrVUhLoweY3dM86fnDdy5NgegnCE8WZpAHEv6zzNYNYs//9JbLd3RSP7hRjt9I2e19GUjZXzD9dcs0FeRJae6vlVw+42Uk5TQySUlE/YuVtMHwMjorN8SZXzFwPUPw8u+iwAPRdx3rIyyaBuTriYqJI5vv2tpwuiaWtKem1l5vU7dpoow+/GHLWwOT/H1enyraLYgnt7Nc+AINYemHZkpwlb3BMt/O5hg4ze/40A3PbjqgY006o+TFW418F0hOgzQU+InIxp4FtVK+WQX/rpyLfpPHvMorSXLyKboSRm1nKqVwF9QzOxRU/b5M22zhbqSsm9Q5CVzlKw9OBWbcyXr8gFJbRaHnPROeCCAINE5XFtKAiQYfA2DOljbF20p+jMdbXFbLj+lEeKwOloa5PnOT53sH3mjj+NJbdCYWez24ftjhfeyGHpAr/X6n0Dcb2BkIUr9RNAUcxOo/GbVDzeUoTbpaIYXVLChbddssIgejH0mBHXZfZsZe93MbmxwaJMOMbKXAStqkiFd+20RfZJBQ==
+    password: AgAk0eXvWkaTKEtVO72cvo2hHX+re6YNmUdETz0JCgSZBjELEp8FkfMTlweoEvY4G7+ZPUHkJuzZdlBsLxk8//zbYEszuZ+kC898ZGmzkxhIy+5D2G5THAnCxVJXMS54TR6eevIJem0wJu0Z/GfBhhsot1v6Hjm+eAG6qXEJEtyOqjhXVnIRemNT4g7pjU3pLmcLeQjra62llxLonMaK22s2BJwC6UbBbM7J1QmdPwg7emkwR5tfk0BddVYFRZeC9cv/GSXDFTMUXHv8I/8jv56UGwnS6UyDX44fp9myk69o2YjO5OqunkhJwgR6LFEYDgFcIxTVDBKbkQnhdTKkxEsGPmpfoynfy1yMelLwK5ptIintPDSLusWWg4rAOuMFQY/tytaI6J8oSnqWgobt19tILkr9f0vXJ9SdDF3qTC0A57CLN0u5dZV7WZgb7vw/MWaYbI/dhfOCOLFMt8C3aqfmrvxMR5g9rGsx9d44X/dw3QOCVO/4TroHK6S6riQKvrfqTcN2z9E+UUWvD4Tk44mA0Lx9N31e4CjQImNiwhZIYKeyWs2mVBw98PLKzyQwx9BoO6Y8ADCigIuRC0DT/go4z38fuHR4Qpr2WlHYCT4aGoCHUvPL+iS4SLiii+5rbISFpANXhEo4AdmYSXx2Lcecyt5OZTOfUW4nNJHMXZuxPK52L8qRK95ANsJ7JtqdqD96BnBzJ6+V/VE=
+    rbac:
+      enabled: true
+      # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
+      # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
+      roles: {}
+        # TIP: set files to an empty string to remove them (sample.yaml: "")
+#        sample.yaml: |
+#          # sample RBAC role file, see https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
+#          ---
+#          name: "sample"
+#          description: "Example Role which contains no permission grants and serves for demonstration purposes"
+
+      # Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
+      # See: https://docs.stackstorm.com/rbac.html#defining-user-role-assignments
+      assignments:
+        # TIP: set files to an empty string to remove them (st2admin.yaml: "")
+        st2admin.yaml: |
+          ---
+          username: st2admin
+          roles:
+            - system_admin
+        observer.yaml: |
+          ---
+          username: observer
+          roles:
+            - observer  
+
+

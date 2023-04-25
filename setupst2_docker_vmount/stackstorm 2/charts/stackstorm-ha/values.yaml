@@ -49,7 +49,7 @@ st2:
   # Password, used to login to StackStorm system
   # If set, st2.password always overrides any existing password.
   # If not set, the password is auto-generated on install and preserved across upgrades.
-  password: tiacloud!2!
+  #password: Ch@ngeMe
   # ST2 crypto key for the  K/V datastore.
   # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
   # If set, st2.datastore_crypto_key always overrides any existing datastore_crypto_key.
@@ -146,13 +146,13 @@ st2:
         # packs volume definition is required if st2.packs.volumes is enabled
 
         # example using persistentVolumeClaim:
-        # persistentVolumeClaim:
-        #   claimName: pvc-st2-packs
+        #persistentVolumeClaim:
+        #  claim-name: pvc-st2-packs
 
         # example using NFS:
         #nfs:
         #  server: "10.12.34.56"
-        #  path: /var/nfsshare/packs 
+        #  path: /var/nfsshare/packs
 
         # example using a flexVolume + rook-ceph
         #flexVolume:
@@ -167,16 +167,12 @@ st2:
         # mounted to /opt/stackstorm/virtualenvs
         # virtualenvs volume definition is required if st2.packs.volumes is enabled
         # see the examples under st2.packs.volumes.packs
-        # persistentVolumeClaim:
-        #   claimName: pvc-st2-virtualenvs
 
       configs: {}
         # mounted to /opt/stackstorm/configs
         # configs volume definition is optional, but only used if st2.packs.volumes is enabled
         # Anything in `st2.packs.configs` will be added to this volume automatically on helm install/upgrade.
         # see the examples under st2.packs.volumes.packs
-        # persistentVolumeClaim:
-        #   claimName: pvc-st2-pack-configs
 
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer(s) in one of these modes:
@@ -275,27 +271,24 @@ securityContext: {}
 ##
 ingress:
   # As recommended, ingress is disabled by default.
-  enabled: true
+  enabled: false
   # Annotations are used to configure the ingress controller
-  annotations:
-#   cert-argocd.io/issuer: letsencrypt-production
-    ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
   # Map hosts to paths
-  hosts:
-  - host: st2.dev.tiacloud.io
-    # Map paths to services
-    paths:
-      - path: /
-        serviceName: stackstorm-ha-1682359235-st2web
-        servicePort: 80
+  hosts: []
+  # - host: hostname.domain.tld
+  #   # Map paths to services
+  #   paths:
+  #     - path: /
+  #       serviceName: service
+  #       servicePort: port
   # Secure the Ingress by specifying a secret that contains a TLS private key and certificate
-  # tls:
-  # - secretName: ssl-st2-dev
+  tls: []
+  # - secretName: chart-example-tls
   #   hosts:
-  #     - st2.dev.tiacloud.io
+  #     - chart-example.test
   # ingressClassName: nginx-ingress
 
 ##
@@ -308,7 +301,7 @@ ingress:
 # Many st2web instances, placed behind a load balancer that serve web app and proxify requests to st2auth, st2api, st2stream.
 st2web:
   # Minimum 2 replicas are recommended to run st2web in HA mode
-  replicas: 1
+  replicas: 2
   # Tested resource consumption based on multiple requests to st2web within nginx
   # Please adjust based on your conscious choice
   resources:
@@ -334,21 +327,9 @@ st2web:
     annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000002
-  
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   ## st2web serves HTTP (port 80) so that SSL termination can be managed
   ## using kubernetes-native features like LoadBalancer or Ingress Controllers.
@@ -377,7 +358,7 @@ st2web:
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
-  replicas: 1
+  replicas: 2
   resources:
     requests:
       memory: "85Mi"
@@ -391,7 +372,7 @@ st2auth:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
@@ -416,7 +397,7 @@ st2auth:
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
-  replicas: 1
+  replicas: 2
   resources:
     requests:
       memory: "150Mi"
@@ -428,22 +409,9 @@ st2api:
     #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
-  env:
-    PACKS_BASE_PATH: "/opt/stackstorm/custom_packs"
+  tolerations: []
+  affinity: {}
+  env: {}
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "ClusterIP"
@@ -462,48 +430,13 @@ st2api:
   postStartScript: ""
   # mount extra volumes on the st2api pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
-  extra_volumes:
-    # - name: tia-st2-config
-    #   mount:
-    #     mountPath: "/etc/st2/st2.conf"
-    #     subPath: st2.conf
-    #     readOnly: false
-    #   volume:
-    #     configMap:
-    #       name: tia-st2-config
-    - name: packs
-      mount:
-        mountPath: "/opt/stackstorm/custom_packs"
-        readOnly: true
-      volume:
-        persistentVolumeClaim:
-          claimName: pvc-st2-packs 
-    # - name: configs
-    #   mount:
-    #     mountPath: "/opt/stackstorm/configs"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-pack-configs
-    # - name: workdir
-    #   mount:
-    #     mountPath: "/opt/stackstorm/workdir"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-workdir
-    # - name: virtualenvs
-    #   mount:
-    #     mountPath: "/opt/stackstorm/virtualenvs"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-virtualenvs
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
 
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
-  replicas: 1
+  replicas: 2
   resources:
     requests:
       memory: "100Mi"
@@ -515,21 +448,9 @@ st2stream:
     #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
-  
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
@@ -554,7 +475,7 @@ st2stream:
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
-  replicas: 1
+  replicas: 2
   resources:
     requests:
       memory: "75Mi"
@@ -566,21 +487,9 @@ st2rulesengine:
     #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
-  
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -608,21 +517,9 @@ st2timersengine:
     #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
-  
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -639,7 +536,7 @@ st2timersengine:
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
-  replicas: 1
+  replicas: 2
   resources:
     requests:
       memory: "200Mi"
@@ -651,22 +548,9 @@ st2workflowengine:
     #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
-  env:
-    PACKS_PATHS: "/opt/stackstorm/custom_packs"
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -677,20 +561,13 @@ st2workflowengine:
   postStartScript: ""
   # mount extra volumes on the st2workflowengine pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
-  extra_volumes:
-    - name: packs
-      mount:
-        mountPath: "/opt/stackstorm/custom_packs"
-        readOnly: false
-      volume:
-        persistentVolumeClaim:
-          claimName: pvc-st2-packs
+  extra_volumes: []
     # see examples under st2actionrunner.extra_volumes
 
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
-  replicas: 1
+  replicas: 2
   resources:
     requests:
       memory: "75Mi"
@@ -702,21 +579,9 @@ st2scheduler:
     #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
-  
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -733,7 +598,7 @@ st2scheduler:
 # https://docs.stackstorm.com/reference/ha.html#st2notifier
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
-  replicas: 1
+  replicas: 2
   resources:
     requests:
       memory: "75Mi"
@@ -745,21 +610,9 @@ st2notifier:
     #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
-  
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -777,7 +630,7 @@ st2notifier:
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
 st2actionrunner:
-  replicas: 1
+  replicas: 5
   resources:
     requests:
       memory: "200Mi"
@@ -795,20 +648,8 @@ st2actionrunner:
   annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
+  tolerations: []
+  affinity: {}
   # Allow the injection of hostAliases (https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/#adding-additional-entries-with-hostaliases)
   # records in the st2actionrunner containers to handle edge case in DNS accessibility/topology
   hostAliases: []
@@ -818,8 +659,7 @@ st2actionrunner:
   #  - hostnames:
   #      - bar
   #   ip: 8.8.8.8
-  env:
-    PACKS_PATHS: "/opt/stackstorm/custom_packs"
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
@@ -835,43 +675,7 @@ st2actionrunner:
   postStartScript: ""
   # mount extra volumes on the st2actionrunner pods (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
-  extra_volumes:
-    # - name: st2-packmanager
-    #   mount:
-    #     mountPath: "/opt/stackstorm/packs/test"
-    #     subPath: install_pack
-    #     readOnly: false
-    #   volume:
-    #     configMap:
-    #       name: st2-packmanager
-    - name: packs
-      mount:
-        mountPath: "/opt/stackstorm/custom_packs"
-        readOnly: true
-      volume:
-        persistentVolumeClaim:
-          claimName: pvc-st2-packs 
-    # - name: configs
-    #   mount:
-    #     mountPath: "/opt/stackstorm/configs"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-pack-configs
-    # - name: workdir
-    #   mount:
-    #     mountPath: "/opt/stackstorm/workdir"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-workdir
-    # - name: virtualenvs
-    #   mount:
-    #     mountPath: "/opt/stackstorm/virtualenvs"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-virtualenvs
+  extra_volumes: []
     # For example, if some actions in the fictional acme pack
     # needed some file-based client-side certificates:
     # - name: st2-encryption-key-vol
@@ -934,24 +738,11 @@ st2sensorcontainer:
   livenessProbe: {}
   readinessProbe: {}
   annotations: {}
+  # Additional advanced settings to control pod/deployment placement
+  affinity: {}
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # # Additional advanced settings to control pod/deployment placement
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
-  env:
-    PACKS_PATHS: "/opt/stackstorm/custom_packs"
+  tolerations: []
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
@@ -967,43 +758,8 @@ st2sensorcontainer:
   postStartScript: ""
   # mount extra volumes on the st2sensorcontainer pod(s) (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
-  extra_volumes:
-    # - name: st2-packmanager
-    #   mount:
-    #     mountPath: "/opt/stackstorm/packs/test"
-    #     subPath: install_pack
-    #     readOnly: false    
-    #   volume:
-    #     configMap:
-    #       name: st2-packmanager
-    - name: packs
-      mount:
-        mountPath: "/opt/stackstorm/custom_packs"
-        readOnly: true
-      volume:
-        persistentVolumeClaim:
-          claimName: pvc-st2-packs 
-    # - name: configs
-    #   mount:
-    #     mountPath: "/opt/stackstorm/configs"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-pack-configs
-    # - name: workdir
-    #   mount:
-    #     mountPath: "/opt/stackstorm/workdir"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-workdir
-    # - name: virtualenvs
-    #   mount:
-    #     mountPath: "/opt/stackstorm/virtualenvs"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-virtualenvs
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
 
 # The st2client deployment/pod simplifies ad-hoc administration.
 # st2client is a special purpose actionrunner pod, but you can customize it separately
@@ -1017,8 +773,7 @@ st2client:
     [credentials]
     username = ${ST2_AUTH_USERNAME}
     password = ${ST2_AUTH_PASSWORD}
-  env:
-    PACKS_PATHS: "/opt/stackstorm/custom_packs"
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
@@ -1037,38 +792,12 @@ st2client:
   postStartScript: ""
   # mount extra volumes on the st2client pod (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
-  extra_volumes:
-    # - name: st2-packmanager
-    #   mount:
-    #     mountPath: "/opt/stackstorm/packs/test"
-    #     subPath: install_pack
-    #     readOnly: false
-    #   volume:
-    #     configMap:
-    #       name: st2-packmanager
-    - name: packs
-      mount:
-        mountPath: "/opt/stackstorm/custom_packs"
-        readOnly: true
-      volume:
-        persistentVolumeClaim:
-          claimName: pvc-st2-packs 
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000000
+  tolerations: []
+  affinity: {}
   resources:
     requests:
       memory: "5Mi"
@@ -1091,22 +820,9 @@ st2garbagecollector:
     #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000002
-  env:
-    PACKS_PATHS: "/opt/stackstorm/custom_packs"
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -1117,14 +833,7 @@ st2garbagecollector:
   postStartScript: ""
   # mount extra volumes on the st2garbagecollector pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
-  extra_volumes:
-    - name: packs
-      mount:
-        mountPath: "/opt/stackstorm/custom_packs"
-        readOnly: true
-      volume:
-        persistentVolumeClaim:
-          claimName: pvc-st2-packs
+  extra_volumes: []
     # see examples under st2actionrunner.extra_volumes
 
 ##
@@ -1167,20 +876,8 @@ st2chatops:
   hubotScriptsVolume: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000002
+  tolerations: []
+  affinity: {}
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -1221,21 +918,9 @@ jobs:
     #   done
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000002
-  
+  tolerations: []
+  affinity: {}
+  env: {}
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
@@ -1316,20 +1001,6 @@ mongodb:
   arbiter:
     enabled: false
   resources: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000002
 
 ##
 ## RabbitMQ configuration (3rd party chart dependency)
@@ -1372,22 +1043,8 @@ rabbitmq:
   # Make sure to also change the rabbitmqMemoryHighWatermark following the formula:
   # rabbitmqMemoryHighWatermark = 0.4 * resources.limits.memory
   resources: {}
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000002
   # number of replicas in the rabbit cluster
-  replicaCount: 1
+  replicaCount: 3
   # As RabbitMQ enabled prometheus operator monitoring by default, disable it for non-prometheus users
   metrics:
     enabled: false
@@ -1405,26 +1062,12 @@ redis:
   # By default the cluster is enabled for the subchart.
   # We just need replica count here to ensure it is HA
   cluster:
-    slaveCount: 2
+    slaveCount: 3
   # Sentinel settings. Sentinel is enabled for better resiliency.
   # This is highly recommended as per tooz library documentation.
   # Hence, the chart requires the setting.
   # https://docs.openstack.org/tooz/latest/user/drivers.html#redis
   # https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
-  # tolerations:
-  #   - key: "master"
-  #     operator: "Equal"
-  #     value: "st2"
-  #     effect: "NoSchedule"
-  # affinity:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         - key: kubernetes.io/hostname
-  #           operator: In
-  #           values:
-  #           - aks-st2-29404821-vmss000002
   sentinel:
     enabled: true
     # DO NOT SET sentinel.usePassword, the tooz driver cannot connect to a password protected sentinel

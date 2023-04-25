@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "pack-manager.name" }}
+  labels:
+    app: {{ template "pack-manager.name" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: {{ template "pack-manager.name" }}
+      release: {{ .Release.Name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ template "pack-manager.name" }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - image: sdtdevops.azurecr.io/qed-sst-pack-manager:{{ .Values.tag }}
+          imagePullPolicy: Always
+          name: app
+          volumeMounts:
+          - mountPath: /home/app/application.properties
+            name: config
+            subPath: application.properties
+          - mountPath: /home/app/packs-versions
+            name: packs-versions
+          - mountPath: /home/app/sst/packs
+            name: sst-packs
+          - mountPath: /home/app/sst/virtualenvs
+            name: sst-venvs
+          - mountPath: /home/app/sst/configs/
+            name: sst-pack-configs
+          - mountPath: /home/app/credentials.properties
+            name: credentials
+            subPath: credentials.properties
+          - mountPath: /home/app/sst/packs-source
+            name: sst-packs-source
+      imagePullSecrets:
+      - name: acrcredpoc
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pack-manager.name" }}
+        name: config
+      - configMap:
+          defaultMode: 420
+          name: sst-packs-versions
+        name: packs-versions
+      - name: sst-packs
+        persistentVolumeClaim:
+          claimName: st2-packs
+      - name: sst-venvs
+        persistentVolumeClaim:
+          claimName: st2-venvs
+      - name: sst-pack-configs
+        persistentVolumeClaim:
+          claimName: st2-packs-config
+      - name: credentials
+        secret:
+          secretName: {{ template "pack-manager.name" }}
+      - name: sst-packs-source
+        persistentVolumeClaim:
+          claimName: st2-packs-source

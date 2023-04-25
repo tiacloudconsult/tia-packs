@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "pack-manager.name" }}
+  labels:
+    app: {{ template "pack-manager.name" }}
+    release: {{ .Release.Name }}
+data:
+  application.properties: |
+    scheduler.delay=5
+    
+    packs.versions=/home/app/packs-versions/packs-versions.csv
+    packs.tmp.path=/home/app/sst/packs-source
+    packs.default=core,default,chatops,linux,packs
+    
+    stackstorm.packs.path=/home/app/sst/packs
+    stackstorm.configs.path=/home/app/sst/configs
+    stackstorm.venvs.path=/home/app/sst/virtualenvs
+    stackstorm.api.url=http://sst-st2web:80
+    stackstorm.api.pack.install.timeout=3600
+    
+    github.baseUrl={{ .Values.github.baseUrl }}
+
+    management.endpoints.web.exposure.include=health

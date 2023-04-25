@@ -1,0 +1,92 @@
+version: 2.1
+
+# Add additional CircleCI Orbs dependencies
+orbs:
+  # https://circleci.com/orbs/registry/orb/circleci/kubernetes
+  kubernetes: circleci/kubernetes@0.11.0
+  # https://circleci.com/orbs/registry/orb/circleci/helm
+  helm: circleci/helm@1.1.1
+  # https://circleci.com/orbs/registry/orb/ccpgames/minikube
+  minikube: ccpgames/minikube@0.0.1
+
+jobs:
+  # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
+  e2e-k8s:
+    parameters:
+      kubernetes-version:
+        type: string
+    # 'large' 4 vCPUs & 15GB RAM CircleCI machine executor
+    # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, Redis clusters and 25+ st2 Pods.
+    # https://circleci.com/docs/2.0/configuration-reference/#machine-executor-linux
+    resource_class: large
+    machine:
+      # Available images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
+      image: ubuntu-2204:2022.10.2
+    steps:
+      - checkout
+      - kubernetes/install
+      - minikube/minikube-install:
+          # https://github.com/kubernetes/minikube/releases
+          version: v1.28.0
+      - run:
+          name: Install Helm v3
+          command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+      - run:
+          name: Create new K8s cluster
+          command: minikube start --vm-driver=docker --memory 8192 --cpus 4 --kubernetes-version=<< parameters.kubernetes-version >>
+      - run:
+          name: Update stackstorm-ha chart dependencies
+          command: helm dependency update
+      - run:
+          name: Helm install stackstorm-ha chart
+          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
+      - run:
+          name: Helm test
+          command: helm test stackstorm-ha
+      - run:
+          name: Helm upgrade with RBAC enabled
+          command: helm upgrade --set st2.rbac.enabled=true --timeout 5m0s --debug --wait stackstorm-ha .
+      - run:
+          name: Helm test with RBAC enabled
+          command: helm test stackstorm-ha
+      - run:
+          when: always
+          name: Show created K8s resources
+          command: kubectl get all
+
+workflows:
+  version: 2
+  e2e:
+    jobs:
+      - e2e-k8s:
+          matrix:
+            parameters:
+              # https://kubernetes.io/releases
+              kubernetes-version:
+                - "v1.25.5"
+                - "v1.24.9"
+                - "v1.23.15"
+  # Run periodic nightly Helm tests to ensure there are no regressions
+  e2e-nightly:
+    jobs:
+      - e2e-k8s:
+          matrix:
+            parameters:
+              # https://kubernetes.io/releases
+              kubernetes-version:
+                - "v1.25.5"
+                - "v1.24.9"
+                - "v1.23.15"
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
+
+experimental:
+  notify:
+    branches:
+      only:
+        - master
