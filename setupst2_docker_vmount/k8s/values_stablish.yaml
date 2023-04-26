@@ -292,9 +292,8 @@ ingress:
     # Map paths to services
     paths:
       - path: /
-        serviceName: stackstorm-ha-1682446240-st2web
+        serviceName: stackstorm-ha-1682359235-st2web
         servicePort: 80
-
   # Secure the Ingress by specifying a secret that contains a TLS private key and certificate
   # tls:
   # - secretName: ssl-st2-dev
@@ -447,7 +446,7 @@ st2api:
   #           values:
   #           - aks-st2-29404821-vmss000000
   env:
-    PACKS_PATH: "/opt/stackstorm/packs/tia"
+    PACKS_PATH: "/opt/stackstorm/custom_packs"
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "ClusterIP"
@@ -477,9 +476,8 @@ st2api:
     #       name: tia-st2-config
     - name: packs
       mount:
-        mountPath: "/opt/stackstorm/packs/tia"
-        subPath: tia
-        readOnly: false
+        mountPath: "/opt/stackstorm/custom_packs"
+        readOnly: true
       volume:
         persistentVolumeClaim:
           claimName: pvc-st2-packs
@@ -671,7 +669,7 @@ st2workflowengine:
   #           values:
   #           - aks-st2-29404821-vmss000000
   env:
-    PACKS_PATHS: "/opt/stackstorm/packs/tia"
+    PACKS_PATHS: "/opt/stackstorm/custom_packs"
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -685,8 +683,7 @@ st2workflowengine:
   extra_volumes:
     - name: packs
       mount:
-        mountPath: "/opt/stackstorm/packs/tia"
-        subPath: tia
+        mountPath: "/opt/stackstorm/custom_packs"
         readOnly: false
       volume:
         persistentVolumeClaim:
@@ -825,7 +822,7 @@ st2actionrunner:
   #      - bar
   #   ip: 8.8.8.8
   env:
-    PACKS_PATHS: "/opt/stackstorm/packs/tia"
+    PACKS_PATHS: "/opt/stackstorm/custom_packs"
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
@@ -852,9 +849,8 @@ st2actionrunner:
     #       name: st2-packmanager
     - name: packs
       mount:
-        mountPath: "/opt/stackstorm/packs/tia"
-        subPath: tia
-        readOnly: false
+        mountPath: "/opt/stackstorm/custom_packs"
+        readOnly: true
       volume:
         persistentVolumeClaim:
           claimName: pvc-st2-packs 
@@ -884,7 +880,7 @@ st2actionrunner:
     # - name: st2-encryption-key-vol
     #   mount:
     #     mountPath: "{{ .Values.acme.ssl_certs_dir }}"
-    #     readOnly: false
+    #     readOnly: true
     #   volume:
     #     secret:
     #       secretName: "{{ .Release.Name }}-st2-acme-pack-certs"
@@ -958,7 +954,7 @@ st2sensorcontainer:
   #           values:
   #           - aks-st2-29404821-vmss000000
   env:
-    PACKS_PATHS: "/opt/stackstorm/packs/tia"
+    PACKS_PATHS: "/opt/stackstorm/custom_packs"
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
@@ -985,9 +981,8 @@ st2sensorcontainer:
     #       name: st2-packmanager
     - name: packs
       mount:
-        mountPath: "/opt/stackstorm/packs/tia"
-        subPath: tia
-        readOnly: false
+        mountPath: "/opt/stackstorm/custom_packs"
+        readOnly: true
       volume:
         persistentVolumeClaim:
           claimName: pvc-st2-packs 
@@ -1026,7 +1021,7 @@ st2client:
     username = ${ST2_AUTH_USERNAME}
     password = ${ST2_AUTH_PASSWORD}
   env:
-    PACKS_PATHS: "/opt/stackstorm/packs/tia"
+    PACKS_PATHS: "/opt/stackstorm/custom_packs"
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
@@ -1056,9 +1051,8 @@ st2client:
     #       name: st2-packmanager
     - name: packs
       mount:
-        mountPath: "/opt/stackstorm/packs/tia"
-        subPath: tia
-        readOnly: false
+        mountPath: "/opt/stackstorm/custom_packs"
+        readOnly: true
       volume:
         persistentVolumeClaim:
           claimName: pvc-st2-packs 
@@ -1115,7 +1109,7 @@ st2garbagecollector:
   #           values:
   #           - aks-st2-29404821-vmss000002
   env:
-    PACKS_PATHS: "/opt/stackstorm/packs/tia"
+    PACKS_PATHS: "/opt/stackstorm/custom_packs"
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -1129,9 +1123,8 @@ st2garbagecollector:
   extra_volumes:
     - name: packs
       mount:
-        mountPath: "/opt/stackstorm/packs/tia"
-        subPath: tia
-        readOnly: false
+        mountPath: "/opt/stackstorm/custom_packs"
+        readOnly: true
       volume:
         persistentVolumeClaim:
           claimName: pvc-st2-packs
