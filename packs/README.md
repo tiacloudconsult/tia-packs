@@ -1,6 +1,8 @@
 # Pack to generated various jinja2 based templates for ArgoCD and Terraform
 
 ```sh
+# To install pack on K8s
+st2 pack install file:///opt/stackstorm/packs/tia/argocd_trigger
 # Inputs are based on the below
 
 "git_branch": "<branch_name>"
@@ -22,7 +24,7 @@
 #Run this webhook to trigger the action 'argocd_trigger' 
 # You get the St2-Api-Key from azure key vault 'argocd-tfs-kvault'. Secret name is st2-api-key-dev
 
-curl -X POST http://localhost:82/api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
+curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
   "git_branch": "argocd-jinja2-crossplane-tf-demo",
   "config_template": "config.j2",
   "config_file": "config.yml",

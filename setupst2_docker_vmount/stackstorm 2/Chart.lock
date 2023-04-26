@@ -1,6 +1,0 @@
-dependencies:
-- name: stackstorm-ha
-  repository: https://helm.stackstorm.com/
-  version: 0.110.0
-digest: sha256:dd3f5bfa5789cfe4ab8342de10d1bd902a36f491698a467655db33a36c3dd568
-generated: "2023-03-17T17:26:54.738956042+01:00"

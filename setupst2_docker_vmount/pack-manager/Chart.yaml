@@ -1,6 +1,0 @@
-apiVersion: v2
-appVersion: 1.0.0
-description: SST pack manager
-name: pack-manager
-type: application
-version: 1.0.141
