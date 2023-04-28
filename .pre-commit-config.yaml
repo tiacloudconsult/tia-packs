@@ -1,11 +1,68 @@
+---
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+  rev: v4.4.0
   hooks:
-  - id: check-branch-name
-    args: ['dev']
-  - id: yaml-lint
-  - id: pylint
-    language_version: python3
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: debug-statements
+  - id: double-quote-string-fixer
+  - id: name-tests-test
+  - id: requirements-txt-fixer
+- repo: https://github.com/asottile/setup-cfg-fmt
+  rev: v2.2.0
+  hooks:
+  - id: setup-cfg-fmt
+- repo: https://github.com/asottile/reorder_python_imports
+  rev: v3.9.0
+  hooks:
+  - id: reorder-python-imports
+    args: [--py37-plus, --add-import, from __future__ import annotations]
+- repo: https://github.com/asottile/add-trailing-comma
+  rev: v2.4.0
+  hooks:
+  - id: add-trailing-comma
+    args: [--py36-plus]
+- repo: https://github.com/asottile/pyupgrade
+  rev: v3.3.1
+  hooks:
+  - id: pyupgrade
+    args: [--py37-plus]
+- repo: https://github.com/pre-commit/mirrors-autopep8
+  rev: v2.0.2
+  hooks:
+  - id: autopep8
+- repo: https://github.com/PyCQA/flake8
+  rev: 6.0.0
+  hooks:
+  - id: flake8
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.2.0
+  hooks:
+  - id: mypy
+    additional_dependencies: [types-all]
+- repo: https://github.com/adrienverge/yamllint.git
+  rev: v1.21.0     # or higher tag
+  hooks:
+  - id: yamllint
+    args: [--format, parsable, --strict]
+    extends: default
+    rules:
+      # 80 chars should be enough, but don't fail if a line is longer
+      line-length:
+        max: 800
+        level: warning
 
+  # don't bother me with this rule
+  indentation: disable
 
+- repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+  rev: 0.2.1     # or other specific tag
+  hooks:
+  - id: yamlfmt
+- repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+  rev: 0.2.1     # or other specific tag
+  hooks:
+  - id: yamlfmt
+    args: [--mapping, '2', --sequence, '2', --offset, '0', --colons, --width, '150']

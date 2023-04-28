@@ -171,5 +171,5 @@ https://swapi.dev/api/planets/3/?format=json
 
 
 ```bash
-cd ..
+cd ..git
 ```
