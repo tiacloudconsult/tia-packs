@@ -2,5 +2,5 @@ extends: default
 rules:
   indentation: disable
   document-start: disable
-  new-line-at-end-of-file: diaable
+  new-line-at-end-of-file: disable
   line-length: disable
