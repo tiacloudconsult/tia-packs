@@ -1,24 +1,10 @@
-name: Lint YAML files
-
-on:
-  push:
-    paths:
-      - "**/*.yml"
-      - "**/*.yaml"
-  pull_request:
-    paths:
-      - "**/*.yml"
-      - "**/*.yaml"
-
+---
+name: Yaml Lint
+on: [push]  # yamllint disable-line rule:truthy
 jobs:
-  lint:
+  lintAllTheThings:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y yamllint
-    - name: Lint YAML files
-      run: yamllint --ignore="indentation" --ignore="missing-document-start" .
+      - uses: actions/checkout@v3
+      - name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3
