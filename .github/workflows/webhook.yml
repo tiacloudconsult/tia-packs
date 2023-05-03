@@ -4,6 +4,22 @@ on:
     branches:
       - main
 jobs:
+
+  azure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure Login
+          uses: Azure/login@v1
+          with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Secret Sync
+          uses: mbmcmullen27/azure-secrets@v1.0
+          id: secrets
+          with:
+          keyvault: gh-secrets-awaited-quail
+          token: ${{ secrets.GH_PAT }}
+          pattern: '[1-4].*'
+
   deliver-webhook:
     runs-on: ubuntu-latest
     steps:
