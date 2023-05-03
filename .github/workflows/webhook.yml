@@ -19,27 +19,26 @@ jobs:
           keyvault: tiacloudvault
           token: ${{ secrets.GH_PAT }}
           pattern: '[1-4].*'
+          run: echo `${{ steps.secrets.outputs}}`
 
-  deliver-webhook:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send webhook request
-        run: |
-          curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
-          -H "Content-Type: application/json" \
-          -H "St2-Api-Key: NmU0MjYxNDYzNGY3NTM0YTJkY2U2ZDJlYmUxYmRkOWUwMDMzZDlkNTRhZTcwYTMwYzhlMTgxMzJiYjY5MzJkNg" \
-          -d \
-          '{
-                "git_branch": "argocd-jinja2-crossplane-tf-demo",
-                "config_template": "config.j2",
-                "config_file": "config.yml",
-                "yaml_template": "namespace_config.j2",
-                "yaml_file": "namespaces.yaml",
-                "input_vars": {
-                  "teamName": "fork",
-                  "server": "test3",
-                  "environment": "dev-dev",
-                  "token": "hello",
-                  "ca": "yea"
-            }
-          }'
+
+#      - name: Send webhook request
+#        run: |
+#          curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
+#          -H "Content-Type: application/json" \
+#          -H "St2-Api-Key: NmU0MjYxNDYzNGY3NTM0YTJkY2U2ZDJlYmUxYmRkOWUwMDMzZDlkNTRhZTcwYTMwYzhlMTgxMzJiYjY5MzJkNg" \
+#          -d \
+#          '{
+#                "git_branch": "argocd-jinja2-crossplane-tf-demo",
+#                "config_template": "config.j2",
+#                "config_file": "config.yml",
+#                "yaml_template": "namespace_config.j2",
+#                "yaml_file": "namespaces.yaml",
+#                "input_vars": {
+#                  "teamName": "fork",
+#                  "server": "test3",
+#                  "environment": "dev-dev",
+#                  "token": "hello",
+#                  "ca": "yea"
+#            }
+#          }'
