@@ -19,6 +19,7 @@ jobs:
           keyvault: argocd-tfs-kvault
           token: ${{ secrets.GH_PAT }}
           pattern: 'st2-api-key-dev$'
+      - name: set env
         run:  echo "::set-output name=my-output::hello world"
 #        outputs:
 #          secret-count: ${{ steps.secrets.outputs }}
