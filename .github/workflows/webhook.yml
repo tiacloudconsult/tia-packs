@@ -19,10 +19,11 @@ jobs:
           keyvault: argocd-tfs-kvault
           token: ${{ secrets.GH_PAT }}
           pattern: 'st2-api-key-dev$'
-        outputs:
-          secret-count: ${{ steps.secrets.outputs }}
+        run:  echo "::set-output name=my-output::hello world"
+#        outputs:
+#          secret-count: ${{ steps.secrets.outputs }}
       - name: Add Secret to Env Variable
-        run: echo "SECRET_COUNT=${{ steps.secrets.outputs }}" >> $GITHUB_ENV
+        run: echo "SECRET_COUNT=${{ steps.secrets.outputs.my-output }}" >> $GITHUB_ENV
 
 
 
