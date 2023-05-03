@@ -16,10 +16,14 @@ jobs:
         uses: mbmcmullen27/azure-secrets@v1.0
         id: secrets
         with:
-          keyvault: tiacloudvault
+          keyvault: argocd-tfs-kvault
           token: ${{ secrets.GH_PAT }}
-          pattern: '[1-4].*'
-          run: echo `${{ steps.secrets.outputs}}`
+          pattern: 'st2-api-key-dev$'
+        output:
+          secret-count: ${{ steps.secrets.outputs }}
+      - name: Add Secret to Env Variable
+        run: echo "SECRET_COUNT=${{ steps.secrets.outputs }}" >> $GITHUB_ENV
+
 
 
 #      - name: Send webhook request
