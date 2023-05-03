@@ -24,7 +24,6 @@ jobs:
 #        outputs:
 #          secret-count: ${{ steps.secrets.outputs }}
       - name: Add Secret to Env Variable
-        env: ${{ steps.secrets }}
         run: |
           echo "SECRET_COUNT=${{ steps.secrets.outputs.my-output }}" >> $GITHUB_ENV
       - name: Test step
