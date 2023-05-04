@@ -4,7 +4,7 @@ on:
     branches:
       - main
 jobs:
-  azure:
+  Git-Sync-Feature-to-StackStorm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,31 +12,13 @@ jobs:
         uses: Azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
-#      - name: Secret Sync
-#        uses: mbmcmullen27/azure-secrets@v1.0
-#        id: secrets
-#        with:
-#          keyvault: argocd-tfs-kvault
-#          token: ${{ secrets.GH_PAT }}
-#          pattern: 'st2-api-key-dev'
-#      - name: set env
-#        run:  echo "::set-output name=my-output::hello world"
-#        outputs:
-#          secret-count: ${{ steps.secrets.outputs }}
-#      - name: Add Secret to Env Variable
-#        run: |
-#          echo "SECRET_COUNT=${{ steps.secrets.outputs.my-output }}" >> $GITHUB_ENV
-#      - name: Test step
-#        run: echo ${{ steps.GetSecretAction.outputs.st2-api-key-dev}}
-#        env:
-#          ST2_API_KEY: ${{ steps.GetSecretAction.outputs.st2-api-key-dev }}
       - name: Azure CLI
         uses: azure/CLI@v1
         id: GetSecretValueWithCLI
         with:
           inlineScript: |
-            echo "SECRET_VALUE=$(az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value")" >> $GITHUB_ENV
-      - name: Send webhook request
+            az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value"
+      - name: Send webhook request to StacKStorm
         run: |
           curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
           -H "Content-Type: application/json" \
@@ -59,4 +41,3 @@ jobs:
           
           
 
-#  "St2-Api-Key: NmU0MjYxNDYzNGY3NTM0YTJkY2U2ZDJlYmUxYmRkOWUwMDMzZDlkNTRhZTcwYTMwYzhlMTgxMzJiYjY5MzJkNg"
