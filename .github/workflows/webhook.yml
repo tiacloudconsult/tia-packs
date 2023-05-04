@@ -34,7 +34,7 @@ jobs:
                   "server": "test3",
                   "environment": "dev-dev",
                   "token": "hello",
-                  "ca": "yea"
+                  "ca": "testing"
             }
           }'
           
