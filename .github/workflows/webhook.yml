@@ -21,7 +21,7 @@ jobs:
         run: |
           curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
           -H "Content-Type: application/json" \
-          -H "St2-Api-Key: ${{ env.st2-api-key-dev }}" \
+          -H "St2-Api-Key: ${{ env.SECRET_VALUE }}" \
           -d \
           '{
                 "git_branch": "argocd-jinja2-crossplane-tf-demo",
