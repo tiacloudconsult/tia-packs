@@ -35,6 +35,13 @@ jobs:
         run: echo ${{ steps.GetSecretAction.outputs.st2-api-key-dev}}
         env:
           ST2_API_KEY: ${{ steps.GetSecretAction.outputs.st2-api-key-dev }}
+      - name: Azure CLI
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az account show
+            az storage -h
+            az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value"
       - name: Send webhook request
         run: |
           curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
