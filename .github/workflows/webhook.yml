@@ -33,7 +33,6 @@ jobs:
 #          echo "SECRET_COUNT=${{ steps.secrets.outputs.my-output }}" >> $GITHUB_ENV
       - name: Test step
         run: echo ${{ steps.GetSecretAction.outputs.st2-api-key-dev}}
-      - name: Set Env
         env:
           ST2_API_KEY: ${{ steps.GetSecretAction.outputs.st2-api-key-dev }}
       - name: Send webhook request
