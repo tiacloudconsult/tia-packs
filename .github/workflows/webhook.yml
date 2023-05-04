@@ -37,16 +37,15 @@ jobs:
           ST2_API_KEY: ${{ steps.GetSecretAction.outputs.st2-api-key-dev }}
       - name: Azure CLI
         uses: azure/CLI@v1
+        id: GetSecretValueWithCLI
         with:
           inlineScript: |
-            az account show
-            az storage -h
-            az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value"
+            echo "SECRET_VALUE=$(az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value")" >> $GITHUB_ENV
       - name: Send webhook request
         run: |
           curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
           -H "Content-Type: application/json" \
-          -H "St2-Api-Key: ${{ steps.GetSecretAction.outputs.st2-api-key-dev }}" \
+          -H "St2-Api-Key: ${{ env.SECRET_VALUE }}" \
           -d \
           '{
                 "git_branch": "argocd-jinja2-crossplane-tf-demo",
