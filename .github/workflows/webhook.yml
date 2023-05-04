@@ -5,43 +5,19 @@ on:
       - main
 jobs:
   Git-Sync-Feature-to-StackStorm:
-    inputs:
-      git_branch:
-        description: 'The Git branch to use.'
-        required: true
-      config_template:
-        description: 'The name of the configuration template.'
-        required: true
-      config_file:
-        description: 'The name of the configuration file.'
-        required: true
-      yaml_template:
-        description: 'The name of the YAML template file.'
-        required: true
-      yaml_file:
-        description: 'The name of the YAML file.'
-        required: true
-      teamName:
-        description: 'The name of the team.'
-        required: true
-      server:
-        description: 'The server name.'
-        required: true
-      environment:
-        description: 'The environment.'
-        required: true
-      token:
-        description: 'The token.'
-        required: true
-      ca:
-        description: 'The ca.'
-        required: true
     runs-on: ubuntu-latest
     steps:
       - name: Azure Login
         uses: Azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+      - name: Get secret
+        uses: ikumi9/azure-keyvault-action
+        with:
+          keyvault: argocd-tfs-kvault
+          secret: st2-api-key-dev
+        id: get-secret
+
       - name: Azure CLI
         uses: azure/CLI@v1
         id: GetSecretValueWithCLI
