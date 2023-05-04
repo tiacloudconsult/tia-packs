@@ -35,9 +35,7 @@ jobs:
         id: GetSecretValueWithCLI
         with:
           inlineScript: |
-#            echo "SECRET_VALUE=$(az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value")" >> $GITHUB_ENV
-              az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value"
-
+            echo "SECRET_VALUE=$(az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value")" >> $GITHUB_ENV
       - name: Send webhook request
         run: |
           curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
