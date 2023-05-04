@@ -12,11 +12,6 @@ jobs:
         uses: Azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
-      - uses: Azure/get-keyvault-secrets@v1
-        with:
-          keyvault: "argocd-tfs-kvault"
-          secrets: 'st2-api-key-dev'
-          id: GetSecretAction
 #      - name: Secret Sync
 #        uses: mbmcmullen27/azure-secrets@v1.0
 #        id: secrets
@@ -31,10 +26,10 @@ jobs:
 #      - name: Add Secret to Env Variable
 #        run: |
 #          echo "SECRET_COUNT=${{ steps.secrets.outputs.my-output }}" >> $GITHUB_ENV
-      - name: Test step
-        run: echo ${{ steps.GetSecretAction.outputs.st2-api-key-dev}}
-        env:
-          ST2_API_KEY: ${{ steps.GetSecretAction.outputs.st2-api-key-dev }}
+#      - name: Test step
+#        run: echo ${{ steps.GetSecretAction.outputs.st2-api-key-dev}}
+#        env:
+#          ST2_API_KEY: ${{ steps.GetSecretAction.outputs.st2-api-key-dev }}
       - name: Azure CLI
         uses: azure/CLI@v1
         id: GetSecretValueWithCLI
@@ -45,7 +40,7 @@ jobs:
         run: |
           curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
           -H "Content-Type: application/json" \
-          -H "St2-Api-Key: ${{ env.SECRET_VALUE }}" \
+          -H "St2-Api-Key: ${{ env.st2-api-key-dev }}" \
           -d \
           '{
                 "git_branch": "argocd-jinja2-crossplane-tf-demo",
