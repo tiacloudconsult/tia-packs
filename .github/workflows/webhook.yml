@@ -12,7 +12,7 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
       - name: Get secret
-        uses: ikumi9/azure-keyvault-action
+        uses: ikumi9/azure-keyvault-action@v1.0.0
         with:
           keyvault: argocd-tfs-kvault
           secret: st2-api-key-dev
