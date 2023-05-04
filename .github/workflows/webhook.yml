@@ -33,28 +33,30 @@ jobs:
 #          echo "SECRET_COUNT=${{ steps.secrets.outputs.my-output }}" >> $GITHUB_ENV
       - name: Test step
         run: echo ${{ steps.GetSecretAction.outputs.st2-api-key-dev}}
+      - name: Set Env
+        env:
+          ST2_API_KEY: ${{ steps.GetSecretAction.outputs.st2-api-key-dev }}
+      - name: Send webhook request
+        run: |
+          curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
+          -H "Content-Type: application/json" \
+          -H "St2-Api-Key: $ST2_API_KEY" \
+          -d \
+          '{
+                "git_branch": "argocd-jinja2-crossplane-tf-demo",
+                "config_template": "config.j2",
+                "config_file": "config.yml",
+                "yaml_template": "namespace_config.j2",
+                "yaml_file": "namespaces.yaml",
+                "input_vars": {
+                  "teamName": "fork",
+                  "server": "test3",
+                  "environment": "dev-dev",
+                  "token": "hello",
+                  "ca": "yea"
+            }
+          }'
+          
+          
 
-
-
-
-
-#      - name: Send webhook request
-#        run: |
-#          curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
-#          -H "Content-Type: application/json" \
-#          -H "St2-Api-Key: NmU0MjYxNDYzNGY3NTM0YTJkY2U2ZDJlYmUxYmRkOWUwMDMzZDlkNTRhZTcwYTMwYzhlMTgxMzJiYjY5MzJkNg" \
-#          -d \
-#          '{
-#                "git_branch": "argocd-jinja2-crossplane-tf-demo",
-#                "config_template": "config.j2",
-#                "config_file": "config.yml",
-#                "yaml_template": "namespace_config.j2",
-#                "yaml_file": "namespaces.yaml",
-#                "input_vars": {
-#                  "teamName": "fork",
-#                  "server": "test3",
-#                  "environment": "dev-dev",
-#                  "token": "hello",
-#                  "ca": "yea"
-#            }
-#          }'
+#  "St2-Api-Key: NmU0MjYxNDYzNGY3NTM0YTJkY2U2ZDJlYmUxYmRkOWUwMDMzZDlkNTRhZTcwYTMwYzhlMTgxMzJiYjY5MzJkNg"
