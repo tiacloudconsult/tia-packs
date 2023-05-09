@@ -1,0 +1,53 @@
+---
+description: This sends a SMS using seven.
+enabled: true
+entry_point: send_sms.py
+name: send_sms
+parameters:
+  delay:
+    description: Date/time for time relayed dispatch. Expects a Unix timestamp or a date/time string formatted as yyyy-mm-dd hh:ii.
+    position: 9
+    type: string
+  flash:
+    description: Flash SMS get displayed directly in the receivers display.
+    position: 3
+    type: boolean
+  foreign_id:
+    description: Custom data returned in DLR callbacks.
+    position: 8
+    type: string
+  from:
+    description: Caller ID. Max 16 numeric or 11 alphanumeric characters. Example +14151234567.
+    position: 2
+    type: string
+  label:
+    description: Custom label for sorting analytics.
+    position: 7
+    type: string
+  no_reload:
+    description: Enables sending duplicate messages (text, type and recipient alike).
+    position: 6
+    type: boolean
+  performance_tracking:
+    description: Enable performance tracking for URLs found in the message text.
+    position: 4
+    type: boolean
+  sandbox:
+    description: Debug - act like a sandbox not sending SMS. Useful for testing if the API works.
+    position: 5
+    type: boolean
+  text:
+    description: Body of the message.
+    position: 1
+    required: true
+    type: string
+  to:
+    description: Recipient number in E.164 format. Example +14151234567.
+    position: 0
+    required: true
+    type: string
+  ttl:
+    description: Time-to-live - message validity period specified in minutes.
+    position: 10
+    type: integer
+runner_type: python-script

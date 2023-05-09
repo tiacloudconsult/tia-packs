@@ -1,0 +1,27 @@
+---
+description: This makes a text-to-speech call using seven.
+enabled: true
+entry_point: send_voice.py
+name: send_voice
+parameters:
+  from:
+    description: Caller ID - must be a shared inbound number or a verified one.
+    position: 2
+    required: false
+    type: string
+  xml:
+    description: Specifies whether the text is of XML format or plain text.
+    position: 3
+    required: false
+    type: boolean
+  text:
+    description: Body of the message.
+    position: 1
+    required: true
+    type: string
+  to:
+    description: Recipient number in E.164 format. Example +14151234567.
+    position: 0
+    required: true
+    type: string
+runner_type: python-script

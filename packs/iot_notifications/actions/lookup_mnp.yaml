@@ -1,0 +1,16 @@
+---
+description: This looks up mobile number portability information using seven.
+enabled: true
+entry_point: lookup_mnp.py
+name: lookup_mnp
+parameters:
+  json:
+    description: Return a detailed JSON response?
+    position: 1
+    type: boolean
+  number:
+    description: The phone number to look up.
+    position: 0
+    required: true
+    type: string
+runner_type: python-script

@@ -1,0 +1,12 @@
+---
+description: This looks up home location register information using seven.
+enabled: true
+entry_point: lookup_hlr.py
+name: lookup_hlr
+parameters:
+  number:
+    description: The phone number to look up.
+    position: 0
+    required: true
+    type: string
+runner_type: python-script

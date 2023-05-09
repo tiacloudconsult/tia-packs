@@ -1,0 +1,12 @@
+---
+description: This retrieves number formatting information using seven.
+enabled: true
+entry_point: lookup_format.py
+name: lookup_format
+parameters:
+  number:
+    description: The phone number to look up.
+    position: 0
+    required: true
+    type: string
+runner_type: python-script

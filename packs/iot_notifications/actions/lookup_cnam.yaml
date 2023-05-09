@@ -1,0 +1,12 @@
+---
+description: This looks up caller name information using seven.
+enabled: true
+entry_point: lookup_cnam.py
+name: lookup_cnam
+parameters:
+  number:
+    description: The phone number to look up.
+    position: 0
+    required: true
+    type: string
+runner_type: python-script
