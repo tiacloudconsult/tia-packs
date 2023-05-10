@@ -95,6 +95,7 @@ class RabbitMQQueueSensor(Sensor):
 
             def callback(ch, method, properties, body, queue_copy=queue):
                 self._dispatch_trigger(ch, method, properties, body, queue_copy)
+                print(" [x] Received %r" % body)
 
             self.channel.basic_consume(queue, callback)
 
