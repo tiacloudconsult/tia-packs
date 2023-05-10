@@ -1,0 +1,47 @@
+name: connectRbmq
+description: "Sensor which monitors a RabbitMQ queue for new messages"
+enabled: true
+runner_type: python-script
+entry_point: connectRbmq.py
+
+parameters:
+  rabbitmq_host:
+    type: string
+    required: true
+    default: mm-rabbit-rabbitmq-0.mm-rabbit-rabbitmq-headless.rabbit.svc.cluster.local
+    description: The hostname or IP address of the RabbitMQ server.
+  rabbitmq_port:
+    type: integer
+    required: true
+    default: 5672
+    description: The port number of the RabbitMQ server.
+  rabbitmq_username:
+    type: string
+    required: true
+    default: test
+    description: The username to use when connecting to the RabbitMQ server.
+  rabbitmq_password:
+    type: string
+    required: true
+    default: test
+    description: The password to use when connecting to the RabbitMQ server.
+  rabbitmq_queue:
+    type: string
+    required: true
+    description: The name of the RabbitMQ queue to monitor.
+  # email_from:
+  #   type: string
+  #   required: true
+  #   description: The email address to send from.
+  # email_to:
+  #   type: string
+  #   required: true
+  #   description: The email address to send to.
+  # email_subject:
+  #   type: string
+  #   required: true
+  #   description: The subject of the email.
+  # email_body:
+  #   type: string
+  #   required: true
+  #   description: The body of the email.

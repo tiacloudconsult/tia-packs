@@ -1,0 +1,20 @@
+---
+ref: iot_notification
+name: iot_notification
+description: "A pack to send notifications based on iot telemetrics"
+keywords:
+  - rabbitmq
+  - mongodb
+  - rabbitmq
+  - queuing
+  - messaging
+  - aqmp
+  - stomp
+  - message broker
+version: 1.0.0
+author: "Francis Poku"
+email: francis.poku@tiacloud.io
+contributors:
+  - "francis.poku@tiacloud.io"
+python_versions:
+  - "3"
