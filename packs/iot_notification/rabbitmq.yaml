@@ -1,6 +1,7 @@
 ---
 sensor_config:
   host: "mm-rabbit-rabbitmq-0.mm-rabbit-rabbitmq-headless.rabbit.svc.cluster.local"
+  port: "5672"
   username: "test"
   password: "test"
   rabbitmq_queue_sensor:

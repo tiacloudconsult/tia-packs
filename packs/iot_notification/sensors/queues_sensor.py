@@ -28,6 +28,7 @@ class RabbitMQQueueSensor(Sensor):
 
         self._logger = self._sensor_service.get_logger(name=self.__class__.__name__)
         self.host = self._config["sensor_config"]["host"]
+        self.port = self._config["sensor_config"]["port"]
         self.username = self._config["sensor_config"]["username"]
         self.password = self._config["sensor_config"]["password"]
 
@@ -73,7 +74,7 @@ class RabbitMQQueueSensor(Sensor):
                 username=self.username, password=self.password
             )
             connection_params = pika.ConnectionParameters(
-                host=self.host, credentials=credentials
+                host=self.host, port=self.port, credentials=credentials
             )
         else:
             connection_params = pika.ConnectionParameters(host=self.host)

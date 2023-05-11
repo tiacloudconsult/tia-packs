@@ -9,6 +9,10 @@ sensor_config:
       description: "RabbitMQ host to connect to"
       type: "string"
       required: true
+    port:
+      description: "RabbitMQ port to connect to"
+      type: "string"
+      required: true
     username:
       description: "Optional username for RabbitMQ"
       type: "string"
