@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 import json
 import shutil
 from jinja2 import Environment, FileSystemLoader
@@ -7,9 +8,39 @@ from st2common.runners.base_action import Action
 
 class CloneGitRepoAction(Action):
     def run(self, config_template, config_file, git_branch, input_vars):
+
+        # Replace with your Azure AD tenant ID
+        tenant_id = '36fdb665-cb69-41f6-8bf1-03e5a0887e79'
+        # Replace with your service principal client ID
+        client_id = 'c083190a-d0b6-4e93-a771-6553dc68fb8c'
+        # Replace with your service principal client secret
+        client_secret = 'ILP8Q~yrMfRnaq_rzIL.elxCueqwK1FxeVlVobZx'
+        # Replace with your Key Vault and secret details
+        vault_name = 'argocd-tfs-kvault'
+        secret_name = 'git-pat-st2-dev'
+
+        # Authenticate using Azure service principal
+        login_command = f"az login --service-principal --tenant {tenant_id} --username {client_id} --password {client_secret}"
+        login_process = subprocess.Popen(login_command, shell=True)
+        login_process.communicate()
+
+        if login_process.returncode != 0:
+            print("Azure authentication failed.")
+            sys.exit(1)
+
+        # Retrieve the secret using Azure CLI
+        command = f"az keyvault secret show --vault-name {vault_name} --name {secret_name} --query value -o tsv"
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
+
+        if process.returncode != 0:
+            print("Failed to retrieve the secret from Azure Key Vault.")
+            sys.exit(1)
+
+        # Decode the output and store the secret value in the variable
+        git_password = output.decode().strip()
         # Retrieve the Git credentials from StackStorm keys
         git_username = 'tiacloud-gh'
-        git_password = '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'
 
         # Set the Git username and email
         email_command = 'git config --global user.email "francis.poku@tiacloud.io"'

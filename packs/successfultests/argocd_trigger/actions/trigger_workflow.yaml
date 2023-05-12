@@ -26,4 +26,24 @@
         description: "The name of the branch to clone"
         default: ""
         required: true
+      yaml_template:
+        type: "string"
+        description: "The path to the Jinja2 yaml template"
+        default: ""
+        required: true
+      yaml_file:
+        type: "string"
+        description: "The path to the Jinja2 yaml template"
+        default: ""
+        required: true
+      argocdapp_template:
+        type: "string"
+        description: "The path to the Jinja2 argocdapp template"
+        default: ""
+        required: true
+      argocdapp_file:
+        type: "string"
+        description: "The path to the output argocdapp file"
+        default: ""
+        required: true
   

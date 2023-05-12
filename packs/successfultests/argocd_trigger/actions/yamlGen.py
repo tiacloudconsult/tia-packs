@@ -6,7 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 from st2common.runners.base_action import Action
 
 class CloneGitRepoAction(Action):
-    def run(self, config_template, config_file, git_branch, input_vars):
+    def run(self, yaml_template, yaml_file, git_branch, input_vars):
         # Retrieve the Git credentials from StackStorm keys
         git_username = 'tiacloud-gh'
         git_password = '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'
@@ -38,13 +38,13 @@ class CloneGitRepoAction(Action):
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
         env = Environment(loader=FileSystemLoader('./tmp//argocd/j2_templates/master_j2config'))
-        template = env.get_template(config_template)
+        template = env.get_template(yaml_template)
         config_data['username'] = git_username
         config_data['password'] = git_password
         config_content = template.render(config_data)
 
         # Save the configuration file to disk
-        config_path = os.path.join(file_path, 'argocd/j2_templates/master_j2config/', config_file)
+        config_path = os.path.join(file_path, 'argocd/apps/k8s-rbac', yaml_file)
         with open(config_path, 'w') as f:
             f.write(config_content)
 
