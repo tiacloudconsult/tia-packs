@@ -9,7 +9,7 @@ class CloneGitRepoAction(Action):
     def run(self, yaml_template, yaml_file, git_branch, input_vars):
         # Retrieve the Git credentials from StackStorm keys
         git_username = 'tiacloud-gh'
-        git_password = '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'
+        git_password = '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'
 
         # Set the Git username and email
         email_command = 'git config --global user.email "francis.poku@tiacloud.io"'
@@ -22,7 +22,7 @@ class CloneGitRepoAction(Action):
             raise Exception('Failed to set Git username: {}'.format(name_result.stderr.decode()))
 
         # Define the Git repository URL and clone the repository
-        git_url = 'https://'+git_username+':'+git_password+'@github.com/tiacloudconsult/completed-aks-cluster.git'
+        git_url = 'https://'+git_username+':'+git_password+'@github.com/tiacloudconsult/mec-argocd-dev.git'
 
         # Check if the 'gen' directory exists. If it exists, delete it and recreate before cloning the repository
         file_path = '/tmp/gen/'
@@ -37,14 +37,14 @@ class CloneGitRepoAction(Action):
 
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
-        env = Environment(loader=FileSystemLoader('./tmp//argocd/argocdv2.0_templates/master_j2config/'))
+        env = Environment(loader=FileSystemLoader('./tmp//argocd/j2_templates/master_j2config'))
         template = env.get_template(yaml_template)
         config_data['username'] = git_username
         config_data['password'] = git_password
         config_content = template.render(config_data)
 
         # Save the configuration file to disk
-        config_path = os.path.join(file_path, 'argocd/master/', yaml_file)
+        config_path = os.path.join(file_path, 'argocd/apps/k8s-rbac', yaml_file)
         with open(config_path, 'w') as f:
             f.write(config_content)
 
