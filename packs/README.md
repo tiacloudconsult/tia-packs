@@ -25,16 +25,19 @@ st2 pack install file:///opt/stackstorm/packs/tia/argocd_trigger
 # You get the St2-Api-Key from azure key vault 'argocd-tfs-kvault'. Secret name is st2-api-key-dev
 
 curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
-  "git_branch": "argocd-jinja2-crossplane-tf-demo",
+  "git_branch": "dev",
   "config_template": "config.j2",
   "config_file": "config.yml",
-  "yaml_template": "namespace_config.j2",
-  "yaml_file": "namespaces.yaml",
+  "yaml_template": "cluster_roles.j2",
+  "yaml_file": "cluster_roles.yaml",
+  "argocdApp_template": "argocd_deploy_config.j2",
+  "argocdApp_file": "argocd-rbac-dev.yaml",
   "input_vars": {
-    "teamName": "fork",
-    "server": "test3",
-    "environment": "dev-dev",
-    "token": "hello",
-    "ca": "yea"
+    "Permission": "contributor",
+    "get": "get",
+    "watch": "watch",
+    "list": "list",
+    "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
+    "AppPath": "k8s-rbac"
   }
 }'
