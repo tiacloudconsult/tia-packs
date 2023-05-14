@@ -292,7 +292,7 @@ ingress:
     # Map paths to services
     paths:
       - path: /
-        serviceName: stackstorm-ha-1682446240-st2web
+        serviceName: stackstorm-ha-1684046461-st2web
         servicePort: 80
 
   # Secure the Ingress by specifying a secret that contains a TLS private key and certificate
@@ -414,7 +414,15 @@ st2auth:
   postStartScript: ""
   # mount extra volumes on the st2auth pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
-  extra_volumes: []
+  extra_volumes:
+    - name: configs
+      mount:
+        mountPath: "/opt/stackstorm/configs"
+        subPath: configs
+        readOnly: false
+      volume:
+        persistentVolumeClaim:
+          claimName: pvc-st2-pack-configs
     # see examples under st2actionrunner.extra_volumes
 
 # https://docs.stackstorm.com/reference/ha.html#st2api
@@ -483,13 +491,14 @@ st2api:
       volume:
         persistentVolumeClaim:
           claimName: pvc-st2-packs
-    # - name: configs
-    #   mount:
-    #     mountPath: "/opt/stackstorm/configs"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-pack-configs
+    - name: configs
+      mount:
+        mountPath: "/opt/stackstorm/configs"
+        subPath: configs
+        readOnly: false
+      volume:
+        persistentVolumeClaim:
+          claimName: pvc-st2-pack-configs
     # - name: workdir
     #   mount:
     #     mountPath: "/opt/stackstorm/workdir"
@@ -776,7 +785,15 @@ st2notifier:
   postStartScript: ""
   # mount extra volumes on the st2notifier pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
-  extra_volumes: []
+  extra_volumes:
+    - name: configs
+      mount:
+        mountPath: "/opt/stackstorm/configs"
+        subPath: configs
+        readOnly: false
+      volume:
+        persistentVolumeClaim:
+          claimName: pvc-st2-pack-configs
     # see examples under st2actionrunner.extra_volumes
 
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
@@ -872,13 +889,14 @@ st2actionrunner:
     #   volume:
     #     persistentVolumeClaim:
     #       claimName: pvc-st2-workdir
-    # - name: virtualenvs
-    #   mount:
-    #     mountPath: "/opt/stackstorm/virtualenvs"
-    #     readOnly: false
-    #   volume:
-    #     persistentVolumeClaim:
-    #       claimName: pvc-st2-virtualenvs
+    - name: virtualenvs
+      mount:
+        mountPath: "/opt/stackstorm/virtualenvs"
+        subPath: virtualenvs
+        readOnly: false
+      volume:
+        persistentVolumeClaim:
+          claimName: pvc-st2-virtualenvs
     # For example, if some actions in the fictional acme pack
     # needed some file-based client-side certificates:
     # - name: st2-encryption-key-vol
@@ -975,14 +993,14 @@ st2sensorcontainer:
   # mount extra volumes on the st2sensorcontainer pod(s) (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes:
-    # - name: st2-packmanager
-    #   mount:
-    #     mountPath: "/opt/stackstorm/packs/test"
-    #     subPath: install_pack
-    #     readOnly: false    
-    #   volume:
-    #     configMap:
-    #       name: st2-packmanager
+    - name: virtualenvs
+      mount:
+        mountPath: "/opt/stackstorm/virtualenvs"
+        subPath: virtualenvs
+        readOnly: false
+      volume:
+        persistentVolumeClaim:
+          claimName: pvc-st2-virtualenvs
     - name: packs
       mount:
         mountPath: "/opt/stackstorm/packs/tia"
@@ -1397,7 +1415,7 @@ rabbitmq:
   #           values:
   #           - aks-st2-29404821-vmss000002
   # number of replicas in the rabbit cluster
-  replicaCount: 1
+  replicaCount: 2
   # As RabbitMQ enabled prometheus operator monitoring by default, disable it for non-prometheus users
   metrics:
     enabled: false
