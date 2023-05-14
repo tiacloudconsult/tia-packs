@@ -1,9 +1,9 @@
 ---
-    name: argocdAppGen
+    name: argocdappGen
     description: generating templates
     enabled: true
     runner_type: python-script
-    entry_point: argocdAppGen.py
+    entry_point: argocdappGen.py
 
     parameters:
       input_vars:

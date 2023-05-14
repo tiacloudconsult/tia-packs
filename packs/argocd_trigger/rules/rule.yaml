@@ -18,5 +18,5 @@
         git_branch: "{{ trigger.body.git_branch }}"
         yaml_template: "{{ trigger.body.yaml_template }}"
         yaml_file: "{{ trigger.body.yaml_file }}"
-        argocdApp_template: "{{ trigger.body.argocdApp_template }}"
-        argocdApp_file: "{{ trigger.body.argocdApp_file }}"
+        argocdapp_template: "{{ trigger.body.argocdapp_template }}"
+        argocdapp_file: "{{ trigger.body.argocdapp_file }}"
