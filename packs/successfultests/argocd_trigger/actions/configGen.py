@@ -50,13 +50,9 @@ class CloneGitRepoAction(Action):
 
         # Commit and push the changes
         os.chdir(file_path)
-        subprocess.run('git add .', shell=True)
-        commit_result = subprocess.run('git commit -m "Updated config file"', shell=True, capture_output=True)
-        if commit_result.returncode != 0:
-            raise Exception('Failed to commit changes: {}'.format(commit_result.stderr.decode()))
-        push_result = subprocess.run('git push', shell=True, capture_output=True)
-        if push_result.returncode != 0:
-            raise Exception('Failed to push changes: {}'.format(push_result.stderr.decode()))
+        subprocess.run('git add .', shell=True, capture_output=True)
+        subprocess.run('git commit -m "Updated config file"', shell=True, capture_output=True, check=False)
+        subprocess.run('git push', shell=True, capture_output=True, check=False)
 
         # Remove the cloned repository directory
         shutil.rmtree(file_path)

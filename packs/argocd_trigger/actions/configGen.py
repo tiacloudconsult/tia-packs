@@ -9,13 +9,13 @@ from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
 
 class CloneGitRepoAction(Action):
-    def run(self, argocdapp_template, argocdapp_file, git_branch, input_vars):
+    def run(self, config_template, config_file, git_branch, input_vars):
         # Replace with your Azure AD tenant ID
         tenant_id = '36fdb665-cb69-41f6-8bf1-03e5a0887e79'
         # Replace with your service principal client ID
         client_id = 'c083190a-d0b6-4e93-a771-6553dc68fb8c'
         # Replace with your service principal client secret
-        client_secret = 'ILP8Q~yrMfRnaq_rzIL.elxCueqwK1FxeVlVobZx'
+        client_secret = 'jTk8Q~1-lApIXqFFsNuGcttL2H6P24H53.Oboa23'
         # Replace with your Key Vault URL
         vault_url = 'https://argocd-tfs-kvault.vault.azure.net/'
         # Replace with the name of your secret
@@ -76,7 +76,7 @@ class CloneGitRepoAction(Action):
 
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
-        env = Environment(loader=FileSystemLoader('./tmp//argocd/j2_templates/master_j2config'))
+        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/master_j2config/'))
         template = env.get_template(config_template)
         config_data['username'] = git_username
         config_data['password'] = git_password
@@ -89,13 +89,9 @@ class CloneGitRepoAction(Action):
 
         # Commit and push the changes
         os.chdir(file_path)
-        subprocess.run('git add .', shell=True)
-        commit_result = subprocess.run('git commit -m "Updated config file"', shell=True, capture_output=True)
-        if commit_result.returncode != 0:
-            raise Exception('Failed to commit changes: {}'.format(commit_result.stderr.decode()))
-        push_result = subprocess.run('git push', shell=True, capture_output=True)
-        if push_result.returncode != 0:
-            raise Exception('Failed to push changes: {}'.format(push_result.stderr.decode()))
+        subprocess.run('git add .', shell=True, capture_output=True)
+        subprocess.run('git commit -m "Updated config file"', shell=True, capture_output=True, check=False)
+        subprocess.run('git push', shell=True, capture_output=True, check=False)
 
         # Remove the cloned repository directory
         shutil.rmtree(file_path)

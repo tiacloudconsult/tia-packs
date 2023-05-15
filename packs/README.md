@@ -41,3 +41,20 @@ curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Conte
     "AppPath": "k8s-rbac"
   }
 }'
+
+curl -X POST http://127.0.0.1:82//api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
+  "git_branch": "dev",
+  "config_template": "config.j2",
+  "config_file": "config.yml",
+  "yaml_template": "rolebindings.j2,",
+  "yaml_file": "rolebindings.yaml",
+  "argocdapp_template": "argocd_deploy_config.j2",
+  "argocdapp_file": "argocd-rbac-dev.yaml",
+  "input_vars": {
+    "environment": "dev",
+    "groupObjectid": "e2ba6951-aff4-4492-a450-e51da7b0abdb",
+    "Namespace":"st2-dev",
+    "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
+    "AppPath": "k8s-rbac"
+  }
+}'
