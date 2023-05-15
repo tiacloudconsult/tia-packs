@@ -30,8 +30,8 @@ curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Conte
   "config_file": "config.yml",
   "yaml_template": "cluster_roles.j2",
   "yaml_file": "cluster_roles.yaml",
-  "argocdApp_template": "argocd_deploy_config.j2",
-  "argocdApp_file": "argocd-rbac-dev.yaml",
+  "argocdapp_template": "argocd_deploy_config.j2",
+  "argocdapp_file": "argocd-rbac-dev.yaml",
   "input_vars": {
     "Permission": "contributor",
     "get": "get",
