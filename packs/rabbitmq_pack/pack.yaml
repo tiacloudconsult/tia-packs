@@ -1,6 +1,6 @@
 ---
-ref: iot_notification
-name: iot_notification
+ref: iot_rabbitmq
+name: iot_rabbitmq
 description: "A pack to send notifications based on iot telemetrics"
 keywords:
   - rabbitmq
