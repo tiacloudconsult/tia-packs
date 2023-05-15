@@ -4,41 +4,51 @@ import json
 import shutil
 from jinja2 import Environment, FileSystemLoader
 from st2common.runners.base_action import Action
+import sys
+from azure.identity import ClientSecretCredential
+from azure.keyvault.secrets import SecretClient
 
 class CloneGitRepoAction(Action):
-    def run(self, yaml_template, yaml_file, git_branch, input_vars):
+    def run(self, argocdapp_template, argocdapp_file, git_branch, input_vars):
         # Replace with your Azure AD tenant ID
         tenant_id = '36fdb665-cb69-41f6-8bf1-03e5a0887e79'
         # Replace with your service principal client ID
         client_id = 'c083190a-d0b6-4e93-a771-6553dc68fb8c'
         # Replace with your service principal client secret
         client_secret = 'ILP8Q~yrMfRnaq_rzIL.elxCueqwK1FxeVlVobZx'
-        # Replace with your Key Vault and secret details
-        vault_name = 'argocd-tfs-kvault'
+        # Replace with your Key Vault URL
+        vault_url = 'https://argocd-tfs-kvault.vault.azure.net/'
+        # Replace with the name of your secret
         secret_name = 'git-pat-st2-dev'
 
-        # Authenticate using Azure service principal
-        login_command = f"az login --service-principal --tenant {tenant_id} --username {client_id} --password {client_secret}"
-        login_process = subprocess.Popen(login_command, shell=True)
-        login_process.communicate()
+        try:
+            # Create a credential object using service principal credentials
+            credential = ClientSecretCredential(
+                tenant_id=tenant_id,
+                client_id=client_id,
+                client_secret=client_secret
+            )
 
-        if login_process.returncode != 0:
-            print("Azure authentication failed.")
+            # Create a secret client
+            client = SecretClient(vault_url=vault_url, credential=credential)
+
+            # Retrieve the secret value
+            secret = client.get_secret(secret_name)
+            secret_value = secret.value
+
+            # Store the secret value in the variable
+            git_password = secret_value
+
+            # Print the retrieved secret value
+            print(f"Retrieved secret value: {git_password}")
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
             sys.exit(1)
 
-        # Retrieve the secret using Azure CLI
-        command = f"az keyvault secret show --vault-name {vault_name} --name {secret_name} --query value -o tsv"
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = process.communicate()
-
-        if process.returncode != 0:
-            print("Failed to retrieve the secret from Azure Key Vault.")
-            sys.exit(1)
-
-        # Decode the output and store the secret value in the variable
-        git_password = output.decode().strip()
        # Retrieve the Git credentials from StackStorm keys
         git_username = 'tiacloud-gh'
+        git_password = secret_value
 
         # Set the Git username and email
         email_command = 'git config --global user.email "francis.poku@tiacloud.io"'
