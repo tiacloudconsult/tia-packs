@@ -36,14 +36,14 @@
         description: "The path to the Jinja2 yaml template"
         default: ""
         required: true
-      argocdapp_template:
+      argocdApp_template:
         type: "string"
-        description: "The path to the Jinja2 argocdapp template"
+        description: "The path to the Jinja2 argocdApp template"
         default: ""
         required: true
-      argocdapp_file:
+      argocdApp_file:
         type: "string"
-        description: "The path to the output argocdapp file"
+        description: "The path to the output argocdApp file"
         default: ""
         required: true
   

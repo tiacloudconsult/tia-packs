@@ -9,8 +9,8 @@
       - config_file
       - yaml_template
       - yaml_file
-      - argocdapp_template
-      - argocdapp_file
+      - argocdApp_template
+      - argocdApp_file
       - git_branch
       - user_role: "Admin"
     tasks:
@@ -39,17 +39,17 @@
         next:
           - when: <% succeeded() %>
             do:
-              - argocdappGen
+              - argocdAppGen
           - when: <% failed() %>
             do:
               - no_operation
 
-      argocdappGen:
-        action: argocd_trigger.argocdappGen
+      argocdAppGen:
+        action: argocd_trigger.argocdAppGen
         input:
           input_vars: <% ctx().input_vars %>
-          argocdapp_template: <% ctx().argocdapp_template %>
-          argocdapp_file: <% ctx().argocdapp_file %>
+          argocdApp_template: <% ctx().argocdApp_template %>
+          argocdApp_file: <% ctx().argocdApp_file %>
           git_branch: <% ctx().git_branch %>
         next:
           - when: <% succeeded() %>
