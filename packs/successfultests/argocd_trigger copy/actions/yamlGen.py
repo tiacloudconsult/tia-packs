@@ -4,12 +4,51 @@ import json
 import shutil
 from jinja2 import Environment, FileSystemLoader
 from st2common.runners.base_action import Action
+import sys
+from azure.identity import ClientSecretCredential
+from azure.keyvault.secrets import SecretClient
 
 class CloneGitRepoAction(Action):
-    def run(self, argocdapp_template, argocdapp_file, git_branch, input_vars):
-        # Retrieve the Git credentials from StackStorm keys
+    def run(self, yaml_template, yaml_file, git_branch, input_vars):
+        # Replace with your Azure AD tenant ID
+        tenant_id = '36fdb665-cb69-41f6-8bf1-03e5a0887e79'
+        # Replace with your service principal client ID
+        client_id = 'c083190a-d0b6-4e93-a771-6553dc68fb8c'
+        # Replace with your service principal client secret
+        client_secret = 'jTk8Q~1-lApIXqFFsNuGcttL2H6P24H53.Oboa23'
+        # Replace with your Key Vault URL
+        vault_url = 'https://argocd-tfs-kvault.vault.azure.net/'
+        # Replace with the name of your secret
+        secret_name = 'git-pat-st2-dev'
+
+        try:
+            # Create a credential object using service principal credentials
+            credential = ClientSecretCredential(
+                tenant_id=tenant_id,
+                client_id=client_id,
+                client_secret=client_secret
+            )
+
+            # Create a secret client
+            client = SecretClient(vault_url=vault_url, credential=credential)
+
+            # Retrieve the secret value
+            secret = client.get_secret(secret_name)
+            secret_value = secret.value
+
+            # Store the secret value in the variable
+            git_password = secret_value
+
+            # Print the retrieved secret value
+            print(f"Retrieved secret value: {git_password}")
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            sys.exit(1)
+
+       # Retrieve the Git credentials from StackStorm keys
         git_username = 'tiacloud-gh'
-        git_password = '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'
+        git_password = secret_value
 
         # Set the Git username and email
         email_command = 'git config --global user.email "francis.poku@tiacloud.io"'
@@ -37,26 +76,22 @@ class CloneGitRepoAction(Action):
 
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
-        env = Environment(loader=FileSystemLoader('./tmp//argocd/j2_templates/master_j2config'))
-        template = env.get_template(argocdapp_template)
+        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/master_j2config/'))
+        template = env.get_template(yaml_template)
         config_data['username'] = git_username
         config_data['password'] = git_password
         config_content = template.render(config_data)
 
         # Save the configuration file to disk
-        config_path = os.path.join(file_path, 'argocd/apps/argocd/apps/worker', argocdapp_file)
+        config_path = os.path.join(file_path, 'argocd/apps/k8s-rbac', yaml_file)
         with open(config_path, 'w') as f:
             f.write(config_content)
 
         # Commit and push the changes
         os.chdir(file_path)
         subprocess.run('git add .', shell=True)
-        commit_result = subprocess.run('git commit -m "Updated config file"', shell=True, capture_output=True)
-        if commit_result.returncode != 0:
-            raise Exception('Failed to commit changes: {}'.format(commit_result.stderr.decode()))
-        push_result = subprocess.run('git push', shell=True, capture_output=True)
-        if push_result.returncode != 0:
-            raise Exception('Failed to push changes: {}'.format(push_result.stderr.decode()))
+        subprocess.run('git commit -m "Updated config file"', shell=True, capture_output=True)
+        subprocess.run('git push', shell=True, capture_output=True)
 
         # Remove the cloned repository directory
         shutil.rmtree(file_path)
