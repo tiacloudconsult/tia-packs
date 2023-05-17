@@ -1,0 +1,36 @@
+---
+sensor_config:
+  description: "RabbitMQ Sensor settings"
+  type: "object"
+  required: true
+  properties:
+    rabbitmq_host:
+      description: "RabbitMQ host to connect to"
+      type: "string"
+      required: true
+    rabbitmq_port:
+      description: "RabbitMQ port to connect to"
+      type: "string"
+      required: true
+    rabbitmq_username:
+      description: "Optional username for RabbitMQ"
+      type: "string"
+    rabbitmq_password:
+      description: "Optional password for RabbitMQ"
+      type: "string"
+      secret: true
+    rabbitmq_queue:
+      description: "Queue settings"
+      type: "string"
+      required: true
+    rabbitmq_exchange:
+      description: "RabbitMQ exchange to connect to"
+      type: "string"
+      required: true
+    rabbitmq_exchange_type:
+      description: "Optional exchange_type for RabbitMQ"
+      type: "string"
+    rabbitmq_routing_key:
+      description: "Optional routing_key for RabbitMQ"
+      type: "string"
+      secret: true
