@@ -6,5 +6,5 @@ sensor_config:
   password: "test"
   rabbitmq_queue_sensor:
     queues:
-      - "iot_queue"
+      - "rabbit_queue"
     deserialization_method: "json"

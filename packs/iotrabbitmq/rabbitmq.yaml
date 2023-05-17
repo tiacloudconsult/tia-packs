@@ -1,9 +1,0 @@
-sensor_config:
-  rabbitmq_host: mm-rabbit-rabbitmq-0.mm-rabbit-rabbitmq-headless.rabbit.svc.cluster.local
-  rabbitmq_port: 5672
-  rabbitmq_username: test
-  rabbitmq_password: test
-  rabbitmq_exchange: iot_exchange
-  rabbitmq_exchange_type: direct
-  rabbitmq_queue: iot_queue
-  rabbitmq_routing_key: iot_routing_key

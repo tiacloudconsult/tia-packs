@@ -1,0 +1,9 @@
+sensor_config:
+  rabbitmq_host: "127.0.0.1"
+  rabbitmq_port: "5672"
+  rabbitmq_username: test
+  rabbitmq_password: test
+  rabbitmq_exchange: rabbit_exchange
+  rabbitmq_exchange_type: direct
+  rabbitmq_queue: rabbit_queue
+  rabbitmq_routing_key: rabbit_routing_key

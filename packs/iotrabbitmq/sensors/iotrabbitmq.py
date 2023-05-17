@@ -5,7 +5,6 @@ from st2reactor.sensor.base import Sensor
 class iotrabbitmq(Sensor):
     def __init__(self, sensor_service, config):
         super(iotrabbitmq, self).__init__(sensor_service=sensor_service, config=config)
-        self._stopped = False
 
     def setup(self):
         credentials = pika.PlainCredentials(self._config["sensor_config"]['rabbitmq_username'], self._config["sensor_config"]['rabbitmq_password'])
@@ -42,4 +41,14 @@ class iotrabbitmq(Sensor):
         payload = body.decode('utf-8')
         self.sensor_service.dispatch(trigger=self._config["sensor_config"]['rabbitmq_message'], payload={'message': payload})
         print(f"Received message: {payload}")
-        
+
+    def add_trigger(self, trigger):
+        # Implement the trigger registration logic here
+        pass
+    
+    def update_trigger(self, trigger):
+        # Empty implementation for the update_trigger method
+        pass
+
+    def remove_trigger(self, trigger):
+        pass
