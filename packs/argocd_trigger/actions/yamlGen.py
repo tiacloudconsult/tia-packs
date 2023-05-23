@@ -83,7 +83,7 @@ class CloneGitRepoAction(Action):
         config_content = template.render(config_data)
 
         # Save the configuration file to disk
-        config_path = os.path.join(file_path, 'argocd/apps/k8s-rbac', yaml_file)
+        config_path = os.path.join(file_path, 'argocd/apps/nginx', yaml_file)
         with open(config_path, 'w') as f:
             f.write(config_content)
 

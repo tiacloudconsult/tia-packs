@@ -1,14 +1,14 @@
 import pika
 
 # RabbitMQ server credentials
-rabbitmq_host = "127.0.0.1"
+rabbitmq_host = "http://rabbitmq.dev.tiacloud.io/"
 rabbitmq_port = "5672"
 rabbitmq_username = "test"
 rabbitmq_password = "test"
 
 # Create connection parameters
-credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
-parameters = pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port, credentials=credentials)
+credentials = pika.PlainCredentials('test', 'test')
+parameters = pika.ConnectionParameters('127.0.0.1', 5672, '/', credentials)
 
 try:
     # Establish connection
