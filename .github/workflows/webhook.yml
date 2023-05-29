@@ -1,5 +1,6 @@
 name: Deliver webhook on push to main
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -19,7 +20,7 @@ jobs:
             echo "SECRET_VALUE=$(az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value")" >> $GITHUB_ENV
       - name: Send webhook request
         run: |
-          curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
+          curl -X POST http://st2.dev.tiacloud.io/v1/webhooks/argocd_triggerapi/ \
           -H "Content-Type: application/json" \
           -H "St2-Api-Key: ${{ env.SECRET_VALUE }}" \
           -d \
