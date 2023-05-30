@@ -1,5 +1,55 @@
 name: Deliver webhook on push to main
 on:
+<<<<<<< Updated upstream
+=======
+  workflow_dispatch:
+    inputs:
+      git_branch:
+        type: choice
+        description: 'Git Branch Name'
+        required: true
+        default: 'argocd-jinja2-crossplane-tf-demo'
+        options:
+          - argocd-jinja2-crossplane-tf-demo
+          - main
+          - dev
+          - st2-dev
+      config_template:
+        type: string
+        default: 'config.j2'
+        description: Config Template Name
+      config_file:
+        type: string
+        default: 'config.yml'
+      yaml_template:
+        type: string
+        default: 'namespace_config.j2'
+      yaml_file:
+        type: string
+        default: 'namespaces.yaml'
+      teamName:
+        type: string
+        default: 'fork'
+      server:
+        type: string
+        default: 'test3'
+      environment:
+        type: choice
+        default: 'dev-dev'
+        options:
+          - dev-dev
+          - prod
+          - QA
+          - UAT
+      token:
+        type: string
+        default: 'hello'
+      ca:
+        type: string
+        default: 'yea'
+        required: true
+
+>>>>>>> Stashed changes
   push:
     branches:
       - main
@@ -18,23 +68,24 @@ jobs:
           inlineScript: |
             echo "SECRET_VALUE=$(az keyvault secret show --name "st2-api-key-dev" --vault-name "argocd-tfs-kvault" --query "value")" >> $GITHUB_ENV
       - name: Send webhook request
+        if: ${{inputs.git_branch}}
         run: |
           curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
           -H "Content-Type: application/json" \
           -H "St2-Api-Key: ${{ env.SECRET_VALUE }}" \
           -d \
           '{
-                "git_branch": "argocd-jinja2-crossplane-tf-demo",
-                "config_template": "config.j2",
-                "config_file": "config.yml",
-                "yaml_template": "namespace_config.j2",
-                "yaml_file": "namespaces.yaml",
+                "git_branch": ${{inputs.git_branch}},
+                "config_template": ${{inputs.config_template}},
+                "config_file": ${{inputs.config_file}},
+                "yaml_template": ${{inputs.yaml_template}},
+                "yaml_file": ${{inputs.yaml_file}},
                 "input_vars": {
-                  "teamName": "fork",
-                  "server": "test3",
-                  "environment": "dev-dev",
-                  "token": "hello",
-                  "ca": "yea"
+                  "teamName": ${{inputs.teamName}},
+                  "server": ${{inputs.server}},
+                  "environment": ${{inputs.environment}},
+                  "token": ${{inputs.token}},
+                  "ca": ${{inputs.ca}}
             }
           }'
           
