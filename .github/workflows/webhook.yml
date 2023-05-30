@@ -1,7 +1,5 @@
 name: Deliver webhook on push to main
 on:
-<<<<<<< Updated upstream
-=======
   workflow_dispatch:
     inputs:
       git_branch:
@@ -48,11 +46,6 @@ on:
         type: string
         default: 'yea'
         required: true
-
->>>>>>> Stashed changes
-  push:
-    branches:
-      - main
 jobs:
   Git-Sync-Feature-to-StackStorm:
     runs-on: ubuntu-latest
