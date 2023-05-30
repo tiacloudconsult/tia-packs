@@ -1,7 +1,6 @@
 name: Deliver webhook on push to main
 on:
-<<<<<<< Updated upstream
-=======
+
   workflow_dispatch:
     inputs:
       git_branch:
@@ -48,8 +47,6 @@ on:
         type: string
         default: 'yea'
         required: true
-
->>>>>>> Stashed changes
   push:
     branches:
       - main
@@ -70,7 +67,7 @@ jobs:
       - name: Send webhook request
         if: ${{inputs.git_branch}}
         run: |
-          curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger \
+          curl -X POST http://st2.dev.tiacloud.io/v1/webhooks/argocd_triggerapi/ \
           -H "Content-Type: application/json" \
           -H "St2-Api-Key: ${{ env.SECRET_VALUE }}" \
           -d \
