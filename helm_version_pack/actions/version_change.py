@@ -20,7 +20,7 @@ class VersionChange(Action):
         subprocess.call(["git", "clone", "-b", git_branch, git_url])
 
         # Get the name of the cloned directory
-        cloned_dir = git_url.split("/")[-1].split(".")[0]
+        cloned_dir = self.git_url.split("/")[-1].split(".")[0]
 
         # List the files in the cloned directory
         return os.listdir(cloned_dir)
