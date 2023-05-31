@@ -8,12 +8,10 @@ from st2common.runners.base_action import Action
 
 # noinspection PyInterpreter
 class VersionChange(Action):
-    def __init__(self, git_url = "git@github.com:tiacloudconsult/tia-packs.git ",git_branch="st2-argocd-pack-dev" ):
-        super(VersionChange, self).__init__(git_url, git_branch)
     def clone(
             self, git_url : str,
             git_branch : str
-    ) -> Any:
+) -> Any:
         # Clone the Git repository
         subprocess.call(["git", "clone", "-b", git_branch, git_url])
 
