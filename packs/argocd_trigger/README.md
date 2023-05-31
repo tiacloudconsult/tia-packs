@@ -3,8 +3,10 @@
 ```sh
 # url: http://st2.dev.tiacloud.io/
 # user: st2admin passwd: tiacloud!2!
+
 # To install pack on K8s
-st2 pack install file:///opt/stackstorm/packs/tia/argocd_trigger
+st2 pack install file:///opt/stackstorm/packs/tia/<pack_name>
+
 # Inputs are based on the below
 
 "git_branch": "<branch_name>"
