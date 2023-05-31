@@ -13,3 +13,6 @@ parameters:
     type: string
     description: Branch name where the files are stored
     required: false
+output:
+  type: object
+  description: The payload returned

@@ -1,4 +1,4 @@
-name: Deliver webhook on push to main
+name: GitHub Sync with StackStorm
 on:
   workflow_dispatch:
   push:
