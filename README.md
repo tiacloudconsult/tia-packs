@@ -2,7 +2,7 @@
 
 ```sh
 # PAT
-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
+<git_pat>
 
 # Install other dependencies
 st2 run packs.install packs=python
@@ -22,9 +22,9 @@ st2 key list
 
 # Clone private repo
 git clone https://<PAT>@github.com/<your-account>/<repo>.git
-git clone https://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@github.com/tiacloudconsult/tia-packs.git
+git clone https://<git_pat>@github.com/tiacloudconsult/tia-packs.git
 
-Mohammedtiacloud@2020
+Mohammedtiacloud<>
 # Add git PAT
 st2ctl reload --register-configs
 
@@ -35,7 +35,7 @@ vim ~/.st2/config
 
 # Add the following 
 git_username: sharhanalhassan
-git_password: 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
+git_password: <git_pat>
 ```
 
 # Rabbit Conf

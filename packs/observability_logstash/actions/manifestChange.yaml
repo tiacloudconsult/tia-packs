@@ -1,0 +1,12 @@
+---
+    name: manifestChange
+    description: Connect with Argo cd Cluster to update deployment version in Application
+    enabled: true
+    runner_type: python-script
+    entry_point: manifestChange.py
+
+    parameters:
+
+      gitpush_repo_name:
+        type: string
+        description: Github Repository Name

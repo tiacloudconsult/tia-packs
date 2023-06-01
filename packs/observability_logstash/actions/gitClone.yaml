@@ -1,0 +1,16 @@
+---
+    name: gitClone
+    description: Trigger for cloning template file.
+    enabled: true
+    runner_type: python-script
+    entry_point: gitClone.py
+
+    parameters:
+      
+      gitclone_repo_name:
+        type: string
+        description: Github Repository Name
+
+      gitpush_repo_name:
+        type: string
+        description: Github Repository Name

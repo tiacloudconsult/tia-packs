@@ -1,0 +1,14 @@
+---
+    name: updateChartVersion
+    description: Trigger for updating Chart file version 
+    enabled: true
+    runner_type: python-script
+    entry_point: updateChartVersion.py
+
+    parameters:
+
+      gitpush_repo_name:
+        type: string
+        description: Github Repository Name
+      
+      

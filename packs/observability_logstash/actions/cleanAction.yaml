@@ -1,0 +1,6 @@
+---
+    name: cleanAction
+    description: Trigger for cleaning the environment after pack completion
+    enabled: true
+    runner_type: python-script
+    entry_point: cleanAction.py

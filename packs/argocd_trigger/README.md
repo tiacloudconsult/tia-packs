@@ -32,16 +32,16 @@ curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Conte
   "git_branch": "dev",
   "config_template": "config.j2",
   "config_file": "config.yml",
-  "yaml_template": "nginx.j2",
-  "yaml_file": "tia-nginx.yaml",
+  "yaml_template": "roles.j2",
+  "yaml_file": "tia-roles.yaml",
   "argocdApp_template": "argocd_deploy_config.j2",
-  "argocdApp_file": "argocd-tia-nginx-dev.yaml",
+  "argocdApp_file": "argocd-rbac-dev.yaml",
   "input_vars": {
-    "environment": "tia-nginx-dev",
+    "environment": "tia-rbac-dev",
     "project": "dev",
-    "Namespace":"tia-nginx",
+    "Namespace":"st2-dev",
     "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
-    "AppPath": "nginx"
+    "AppPath": "k8s-rbac"
   }
 }'
 

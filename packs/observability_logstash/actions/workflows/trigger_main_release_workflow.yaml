@@ -1,0 +1,48 @@
+---
+    version: "1.0"
+
+    description: A workflow to deploy Logstash using Argo CD
+
+    input:
+      - gitclone_repo_name: "qed-op-logging-framework-logstash"
+      - gitpush_repo_name: "qed-op-logging-framework-logstash-chart"
+
+    tasks:
+
+      gitClone:
+        action: observability_logstash.gitClone
+        input:
+          gitclone_repo_name: <% ctx().gitclone_repo_name %>
+          gitpush_repo_name: <% ctx().gitpush_repo_name %>
+        next:
+          - when: <% succeeded() %>
+            do:
+              - manifestChange
+          - when: <% failed() %>
+            do:
+              - no_operation
+
+      manifestChange:
+        action: observability_logstash.manifestChange
+        input:
+          gitpush_repo_name: <% ctx().gitpush_repo_name %>
+        next:
+          - when: <% succeeded() %>
+            do:
+              - cleanAction
+          - when: <% failed() %>
+            do:
+              - cleanAction
+
+      cleanAction:
+        action: observability_logstash.cleanAction
+        next:
+          - when: <% succeeded() %>
+            do:
+              - no_operation
+          - when: <% failed() %>
+            do:
+              - no_operation
+    
+      no_operation:
+        action: core.noop

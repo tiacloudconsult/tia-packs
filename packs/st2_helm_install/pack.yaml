@@ -1,0 +1,14 @@
+---
+    ref: st2_helm_install
+    name: st2_helm_install
+    description: "A workflow to deploy stackstorm using Argo CD"
+    keywords:
+      - workflow
+      - azure
+      - stackstorm
+      - pipeline
+      - argocd
+    version: 1.0.0
+    email: francis.poku@tiacloud.io
+    python_versions:
+      - "3"

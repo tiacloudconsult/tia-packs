@@ -1,0 +1,6 @@
+---
+    name: trigger_main_release_workflow
+    description: A workflow to deploy Logstash using Argo CD
+    enabled: true
+    runner_type: orquesta
+    entry_point: workflows/trigger_main_release_workflow.yaml

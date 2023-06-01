@@ -1,0 +1,16 @@
+---
+    name: gitPush
+    description: Trigger for pushing values file in archive branch.
+    enabled: true
+    runner_type: python-script
+    entry_point: gitPush.py
+
+    parameters:
+      
+      gitpush_repo_name:
+        type: string
+        description: Github Repository Name
+
+      gitclone_repo_name:
+        type: string
+        description: Github Repository Name
