@@ -9,8 +9,8 @@ from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
 
 class CloneGitRepoAction(Action):
-    def run(self, yaml_templates, yaml_files, git_branch, input_vars):
-        
+    def run(self, yaml_template, yaml_file, git_branch, input_vars):
+
         tenant_id = '36fdb665-cb69-41f6-8bf1-03e5a0887e79'
         # Replace with your service principal client ID
         client_id = 'c083190a-d0b6-4e93-a771-6553dc68fb8c'
@@ -76,19 +76,19 @@ class CloneGitRepoAction(Action):
 
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
-        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/config/'))
+        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/config'))
 
-        for yaml_template, yaml_file in zip(yaml_templates, yaml_files):
+        for yaml_templates, yaml_files in zip(yaml_template, yaml_file):
             config_data['username'] = git_username
             config_data['password'] = git_password
 
-            template = env.get_template(yaml_template)
+            template = env.get_template(yaml_templates)
             config_content = template.render(config_data)
 
             # Save the configuration file to disk
             base_dir = 'argocd/apps/'
-            file_name, _ = os.path.splitext(yaml_file)[0]
-            config_path = os.path.join(file_path, base_dir, file_name, yaml_file)
+            file_name, _ = os.path.splitext(yaml_files)[0]
+            config_path = os.path.join(file_path, base_dir, file_name, yaml_files)
             with open(config_path, 'w') as f:
                 f.write(config_content)
 
