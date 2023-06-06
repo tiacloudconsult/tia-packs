@@ -1,7 +1,7 @@
 ---
     version: "1.0"
 
-    description: A workflow to deploy Logstash using Argo CD
+    description: A workflow to deploy stackstorm using Argo CD
 
     input:
       - gitclone_repo_name: "qed-op-logging-framework-logstash"

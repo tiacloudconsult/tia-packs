@@ -1,5 +1,6 @@
 import os
 import subprocess
+import pathlib
 import json
 import shutil
 from jinja2 import Environment, FileSystemLoader
@@ -78,17 +79,23 @@ class CloneGitRepoAction(Action):
         config_data = json.loads(json.dumps(input_vars))
         env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/config'))
 
-        for yaml_templates, yaml_files in zip(yaml_template, yaml_file):
-            config_data['username'] = git_username
-            config_data['password'] = git_password
+        config_data['username'] = git_username
+        config_data['password'] = git_password
 
+        base_dir = 'argocd/apps/'
+
+        # Split the yaml_template and yaml_file strings into lists
+        yaml_template = yaml_template.split(", ")
+        yaml_file = yaml_file.split(", ")
+
+        for yaml_templates, yaml_files in zip(yaml_template, yaml_file):
             template = env.get_template(yaml_templates)
             config_content = template.render(config_data)
 
-            # Save the configuration file to disk
-            base_dir = 'argocd/apps/'
-            file_name, _ = os.path.splitext(yaml_files)[0]
-            config_path = os.path.join(file_path, base_dir, file_name, yaml_files)
+            file_name = os.path.splitext(yaml_files)[0]
+            config_path = pathlib.Path(file_path, base_dir, file_name, yaml_files)
+            os.makedirs(os.path.dirname(config_path), exist_ok=True)
+
             with open(config_path, 'w') as f:
                 f.write(config_content)
 
