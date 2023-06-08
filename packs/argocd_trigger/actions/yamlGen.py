@@ -1,5 +1,6 @@
 import os
 import subprocess
+import pathlib
 import json
 import shutil
 from jinja2 import Environment, FileSystemLoader
@@ -10,7 +11,7 @@ from azure.keyvault.secrets import SecretClient
 
 class CloneGitRepoAction(Action):
     def run(self, yaml_template, yaml_file, git_branch, input_vars):
-        # Replace with your Azure AD tenant ID
+
         tenant_id = '36fdb665-cb69-41f6-8bf1-03e5a0887e79'
         # Replace with your service principal client ID
         client_id = 'c083190a-d0b6-4e93-a771-6553dc68fb8c'
@@ -46,7 +47,7 @@ class CloneGitRepoAction(Action):
             print(f"Error: {str(e)}")
             sys.exit(1)
 
-       # Retrieve the Git credentials from StackStorm keys
+        # Retrieve the Git credentials from StackStorm keys
         git_username = 'tiacloud-gh'
         git_password = secret_value
 
@@ -76,21 +77,32 @@ class CloneGitRepoAction(Action):
 
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
-        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/master_j2config/'))
-        template = env.get_template(yaml_template)
+        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/config'))
+
         config_data['username'] = git_username
         config_data['password'] = git_password
-        config_content = template.render(config_data)
 
-        # Save the configuration file to disk
-        config_path = os.path.join(file_path, 'argocd/apps/nginx', yaml_file)
-        with open(config_path, 'w') as f:
-            f.write(config_content)
+        base_dir = 'argocd/apps/'
+
+        # Split the yaml_template and yaml_file strings into lists
+        yaml_template = yaml_template.split(", ")
+        yaml_file = yaml_file.split(", ")
+
+        for yaml_templates, yaml_files in zip(yaml_template, yaml_file):
+            template = env.get_template(yaml_templates)
+            config_content = template.render(config_data)
+
+            file_name = os.path.splitext(yaml_files)[0]
+            config_path = pathlib.Path(file_path, base_dir, file_name, yaml_files)
+            os.makedirs(os.path.dirname(config_path), exist_ok=True)
+
+            with open(config_path, 'w') as f:
+                f.write(config_content)
 
         # Commit and push the changes
         os.chdir(file_path)
         subprocess.run('git add .', shell=True)
-        subprocess.run('git commit -m "Updated config file"', shell=True, capture_output=True)
+        subprocess.run('git commit -m "Updated config files"', shell=True, capture_output=True)
         subprocess.run('git push', shell=True, capture_output=True)
 
         # Remove the cloned repository directory

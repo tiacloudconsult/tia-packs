@@ -1,0 +1,21 @@
+---
+    ref: observability_logstash
+    name: observability_logstash
+    description: "A workflow to deploy Logstash using Argo CD"
+    keywords:
+      - workflow
+      - azure
+      - logstash
+      - pipeline
+      - argocd
+    version: 2.0.0
+    author: "Observability Platform Team"
+    email: observability@gsk.com
+    contributors:
+      - "sulabh.x.bansal@gsk.com"
+      - "jatin.8.kumar@gsk.com"
+      - "asheesh.x.tyagi@gsk.com"
+      - "deepak.x.khurana@gsk.com"
+      - "vishal.x.singhal@gsk.com"
+    python_versions:
+      - "3"

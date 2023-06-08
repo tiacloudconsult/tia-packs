@@ -1,0 +1,18 @@
+---
+    name: st2_helm_install_dev
+    pack: st2_helm_install
+    description:  A workflow to deploy stackstorm using Argo CD
+    enabled: true
+
+    trigger:
+      type: core.st2.webhook
+      parameters:
+        url: helminstall/dev
+
+    criteria:
+      trigger.body.ref:
+        type: "equals"
+        pattern: "refs/heads/dev"
+
+    action:
+      ref: st2_helm_install.trigger_dev_workflow

@@ -1,0 +1,16 @@
+---
+name: helm_version_trigger_rule
+pack: helm_version_pack
+description: Trigger Helm Version workflow
+enabled: true
+
+trigger:
+  type: core.st2.webhook   #registers a webhook
+  parameters:
+    url: helm_version_trigger #name of webhook POST http://10.12.233.1/api/v1/webhooks/helm_version_trigger
+
+  action:
+    ref: helm_version_pack.trigger_workflow
+    parameters:
+      git_url: "{{ trigger.body.git_url }}"
+      git_branch: "{{ trigger.body.git_branch }}"

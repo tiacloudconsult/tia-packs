@@ -1,0 +1,18 @@
+---
+    name: observability_logstash_develop
+    pack: observability_logstash
+    description:  A workflow to deploy Logstash using Argo CD
+    enabled: true
+
+    trigger:
+      type: core.st2.webhook
+      parameters:
+        url: observabilitylogstashargocd/develop
+
+    criteria:
+      trigger.body.ref:
+        type: "equals"
+        pattern: "refs/heads/develop"
+
+    action:
+      ref: observability_logstash.trigger_develop_workflow
