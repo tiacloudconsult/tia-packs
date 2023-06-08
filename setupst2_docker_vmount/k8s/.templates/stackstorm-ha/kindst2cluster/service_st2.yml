@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: StackStorm st2web, - an admin Web UI and main entry point for external
+      API requests
+    meta.helm.sh/release-name: chart-1674032927
+    meta.helm.sh/release-namespace: st2
+  labels:
+    app: st2web
+    app.kubernetes.io/managed-by: Helm
+    chart: stackstorm-ha-0.100.0
+    heritage: Helm
+    release: chart-1674032927
+    tier: frontend
+    vendor: stackstorm
+  name: chart-1674032927-st2web
+  namespace: st2
+spec:
+  allocateLoadBalancerNodePorts: true
+  clusterIP: 10.96.40.109
+  clusterIPs:
+  - 10.96.40.109
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - nodePort: 31486
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: st2web
+    release: chart-1674032927
+  sessionAffinity: None
+  type: ClusterIP
