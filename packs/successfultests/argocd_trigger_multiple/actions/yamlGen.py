@@ -88,28 +88,16 @@ class CloneGitRepoAction(Action):
         yaml_template = yaml_template.split(", ")
         yaml_file = yaml_file.split(", ")
 
+        for yaml_templates, yaml_files in zip(yaml_template, yaml_file):
+            template = env.get_template(yaml_templates)
+            config_content = template.render(config_data)
 
-        # Iterate over key-value pairs in input_vars
-        for key, values in config_data.items():
-            # Skip keys that are not relevant for mapping to templates and files
-            if key not in ["teamName", "environment"]:
-                continue
+            file_name = os.path.splitext(yaml_files)[0]
+            config_path = pathlib.Path(file_path, base_dir, file_name, yaml_files)
+            os.makedirs(os.path.dirname(config_path), exist_ok=True)
 
-            # Iterate over the values and map them to the corresponding templates and files
-            for value, yaml_templates, yaml_files in zip(values, yaml_template, yaml_file):
-                # Update config_data with current value
-                config_data[key] = value
-
-                # Render YAML template
-                template = env.get_template(yaml_templates)
-                config_content = template.render(config_data)
-
-                # Write YAML content to file
-                file_name = os.path.splitext(yaml_file)[0]
-                config_path = pathlib.Path(file_path, base_dir, file_name, yaml_files)
-                os.makedirs(os.path.dirname(config_path), exist_ok=True)
-                with open(config_path, 'w') as f:
-                    f.write(config_content)
+            with open(config_path, 'w') as f:
+                f.write(config_content)
 
         # Commit and push the changes
         os.chdir(file_path)
