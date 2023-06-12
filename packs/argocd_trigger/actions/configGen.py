@@ -76,14 +76,14 @@ class CloneGitRepoAction(Action):
 
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
-        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/config/'))
+        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/master_j2config/'))
         template = env.get_template(config_template)
         config_data['username'] = git_username
         config_data['password'] = git_password
         config_content = template.render(config_data)
 
         # Save the configuration file to disk
-        config_path = os.path.join(file_path, 'argocd/j2_templates/config/', config_file)
+        config_path = os.path.join(file_path, 'argocd/j2_templates/master_j2config/', config_file)
         with open(config_path, 'w') as f:
             f.write(config_content)
 

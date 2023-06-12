@@ -77,27 +77,43 @@ class CloneGitRepoAction(Action):
 
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
-        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/config'))
+        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/master_j2config'))
 
         config_data['username'] = git_username
         config_data['password'] = git_password
 
         base_dir = 'argocd/apps/'
-
         # Split the yaml_template and yaml_file strings into lists
         yaml_template = yaml_template.split(", ")
         yaml_file = yaml_file.split(", ")
 
-        for yaml_templates, yaml_files in zip(yaml_template, yaml_file):
-            template = env.get_template(yaml_templates)
-            config_content = template.render(config_data)
+        # Iterate over key-value pairs in input_vars
+        for key, values in config_data.items():
+            # Skip keys that are not relevant for mapping to templates and files
+            if key not in ["teamName", "environment"]:
+                continue
 
-            file_name = os.path.splitext(yaml_files)[0]
-            config_path = pathlib.Path(file_path, base_dir, file_name, yaml_files)
-            os.makedirs(os.path.dirname(config_path), exist_ok=True)
+            # Convert single values to a list
+            if not isinstance(values, list):
+                values = [values]
 
-            with open(config_path, 'w') as f:
-                f.write(config_content)
+            # Iterate over the values and map them to the corresponding templates and files
+            for value, yaml_templates, yaml_files in zip(values, yaml_template, yaml_file):
+                # Update temp_config_data with current value
+                temp_config_data = config_data.copy()
+                temp_config_data[key] = value
+
+                # Render YAML template
+                template = env.get_template(yaml_templates)
+                config_content = template.render(temp_config_data)
+
+                # Write YAML content to file
+                file_name = os.path.splitext(yaml_files)[0]
+                directory_name = file_name.split('.')[0]
+                config_path = pathlib.Path(file_path, base_dir, directory_name, yaml_files)
+                os.makedirs(os.path.dirname(config_path), exist_ok=True)
+                with open(config_path, 'w') as f:
+                    f.write(config_content)
 
         # Commit and push the changes
         os.chdir(file_path)

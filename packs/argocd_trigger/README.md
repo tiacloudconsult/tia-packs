@@ -45,20 +45,19 @@ curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Conte
   }
 }'
 
-curl -X POST http://127.0.0.1:82//api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: ZmY5ZjRlYjMyZTZlY2VlOWZkOTc3ODZkM2M3NTFlOTBiOWY1NTQ1YmY2OGNkYzg5Yzk0MTA2ZDMwMGRkYjU4MA" -d '{
-  "git_branch": "j2",
+curl -X POST http://127.0.0.1:82/api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
+  "git_branch": "dev",
   "config_template": "config.j2",
   "config_file": "config.yml",
-  "yaml_template": "namespace.j2, namespace.j2, namespace.j2",
-  "yaml_file": "test1.yaml, test2.yml, test3.yml",
-  "argocdApp_template": "argocd_deploy_config.j2, argocd_deploy_config.j2, argocd_deploy_config.j2",
-  "argocdApp_file": "argocd-test1-dev.yaml, argocd-test2-dev.yaml, argocd-test3-dev.yaml",
+  "yaml_template": "tiacourses.j2, tiacourses_hpa_config.j2, tiacourses.j2, tiacourses_hpa_config.j2, tiacourses.j2, tiacourses_hpa_config.j2",
+  "yaml_file": "tiacourses.frank.yaml, tiacourses.frank.hpa.yaml, tiacourses.sam.yaml, tiacourses.sam.hpa.yaml, tiacourses.ozi.yaml, tiacourses.ozi.hpa.yaml",
+  "argocdApp_template": "argocd_deploy_config.j2",
+  "argocdApp_file": "argocd-tiacourses-dev.yaml",
   "input_vars": {
-    "teamName": ["francis1", "francis2", "francis3"],
-    "groupObjectid": "e2ba6951-aff4-4492-a450-e51da7b0abdb",
-    "Namespace":"st2-dev",
-    "environment": ["francis1", "francis2", "francis3"],
+    "environment": "tiacourses-dev",
+    "username" : ["frank", "frank", "sam", "sam", "ozi", "ozi"],
+    "project": "dev",
     "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
-    "AppPath": "test5"
+    "AppPath": "tiacourses"
   }
 }'

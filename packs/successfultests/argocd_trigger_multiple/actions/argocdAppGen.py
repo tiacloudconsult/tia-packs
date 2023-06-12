@@ -77,7 +77,7 @@ class CloneGitRepoAction(Action):
 
         # Parse the JSON config data and generate the configuration file using the Jinja2 template
         config_data = json.loads(json.dumps(input_vars))
-        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/config'))
+        env = Environment(loader=FileSystemLoader(file_path + 'argocd/j2_templates/master_j2config'))
         config_data['username'] = git_username
         config_data['password'] = git_password
 
@@ -87,14 +87,33 @@ class CloneGitRepoAction(Action):
         argocdApp_template = argocdApp_template.split(", ")
         argocdApp_file = argocdApp_file.split(", ")
 
-        for argocdApp_templates, argocdApp_files in zip(argocdApp_template, argocdApp_file):
-            template = env.get_template(argocdApp_templates)
-            config_content = template.render(config_data)
+        # Iterate over key-value pairs in input_vars
+        for key, values in config_data.items():
+            # Skip keys that are not relevant for mapping to templates and files
+            if key not in ["AppPath", "environment", "project", "server", "teamName"]:
+                continue
 
-            config_path = pathlib.Path(file_path, base_dir, argocdApp_files)
+            # Convert single values to a list
+            if not isinstance(values, list):
+                values = [values]
 
-            with open(config_path, 'w') as f:
-                f.write(config_content)
+
+            # Iterate over the values and map them to the corresponding templates and files
+            for value, argocdApp_templates, argocdApp_files in zip(values, argocdApp_template, argocdApp_file):
+                # Update temp_config_data with current value
+                temp_config_data = config_data.copy()
+                temp_config_data[key] = value
+
+                # Render YAML template
+                template = env.get_template(argocdApp_templates)
+                config_content = template.render(temp_config_data)
+
+                # Write YAML content to file
+                file_name = os.path.splitext(argocdApp_files)[0]
+                config_path = pathlib.Path(file_path, base_dir, argocdApp_files)
+
+                with open(config_path, 'w') as f:
+                    f.write(config_content)
 
         # Commit and push the changes
         os.chdir(file_path)
