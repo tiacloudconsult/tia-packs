@@ -30,35 +30,10 @@ st2 pack install file:///opt/stackstorm/packs/tia/<pack_name>
 
 curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
   "git_branch": "dev",
-  "config_template": "config.j2",
-  "config_file": "config.yml",
-  "yaml_template": "roles.j2",
-  "yaml_file": "tia-roles.yaml",
-  "argocdApp_template": "argocd_deploy_config.j2",
-  "argocdApp_file": "argocd-rbac-dev.yaml",
-  "input_vars": {
-    "environment": "tia-rbac-dev",
-    "project": "dev",
-    "Namespace":"st2-dev",
-    "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
-    "AppPath": "k8s-rbac"
-  }
+  "port_var": "3000"
 }'
 
-curl -X POST http://127.0.0.1:82//api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
-  "git_branch": "j2",
-  "config_template": "config.j2",
-  "config_file": "config.yml",
-  "yaml_template": "namespace.j2",
-  "yaml_file": "test1.yaml, test2.yml, test3.yml",
-  "argocdApp_template": "argocd_deploy_config.j2, argocd_deploy_config.j2, argocd_deploy_config.j2",
-  "argocdApp_file": "argocd-test1-dev.yaml, argocd-test2-dev.yaml, argocd-test3-dev.yaml",
-  "input_vars": {
-    "teamName": "francispoku2",
-    "groupObjectid": "e2ba6951-aff4-4492-a450-e51da7b0abdb",
-    "Namespace":"st2-dev",
-    "environment": "tia-test-dev",
-    "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
-    "AppPath": "test5"
-  }
+curl -X POST http://127.0.0.1:82/api/v1/webhooks/kong_tcp_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
+  "git_branch": "dev",
+  "port_var": "3000"
 }'

@@ -1,0 +1,16 @@
+---
+    name: kong_tcp_trigger_rule
+    pack: kong_tcp_trigger
+    description: Trigger ArgoCD workflow
+    enabled: true
+
+    trigger:
+      type: core.st2.webhook   #registers a webook
+      parameters:
+        url: kong_tcp_trigger #name of webhook POST http://10.12.233.1/api/v1/webhooks/kong_tcp_trigger
+
+    action:
+      ref: kong_tcp_trigger.trigger_workflow
+      parameters:
+        git_branch: "{{ trigger.body.git_branch }}"
+        port_var: "{{ trigger.body.port_var }}"

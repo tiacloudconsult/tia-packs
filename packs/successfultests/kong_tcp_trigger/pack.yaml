@@ -1,12 +1,12 @@
 ---
-ref: argocd_trigger
-name: argocd_trigger
+ref: kong_tcp_trigger
+name: kong_tcp_trigger
 description: "A pack to configure target cluster with ArgoCD Clusters"
 keywords:
   - workflow
   - git
   - jinja2
-  - argocd
+  - kong_tcp
 version: 1.0.0
 author: "Francis Poku"
 email: francis.poku@tiacloud.io

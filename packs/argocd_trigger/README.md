@@ -50,12 +50,12 @@ curl -X POST http://127.0.0.1:82/api/v1/webhooks/argocd_trigger -H "Content-Type
   "config_template": "config.j2",
   "config_file": "config.yml",
   "yaml_template": "tiacourses.j2",
-  "yaml_file": "tiacourses.frank.yaml",
+  "yaml_file": "tiacourses.frank.yaml, tiacourses.frank.hpa.yaml, tiacourses.sam.yaml, tiacourses.sam.hpa.yaml, tiacourses.ozi.yaml, tiacourses.ozi.hpa.yaml",
   "argocdApp_template": "argocd_deploy_config.j2",
   "argocdApp_file": "argocd-tiacourses-dev.yaml",
   "input_vars": {
     "environment": "tiacourses-dev",
-    "username" : ["frank"],
+    "username" : ["frank", "frank", "sam", "sam", "ozi", "ozi"],
     "project": "dev",
     "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
     "AppPath": "tiacourses"

@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,7 +16,7 @@ spec:
       annotations:
         kuma.io/gateway: enabled
         kuma.io/service-account-token-volume: kong-serviceaccount-token
-        traffic.sidecar.istio.io/includeInboundPorts: ''
+        traffic.sidecar.istio.io/includeInboundPorts: ""
       labels:
         app: proxy-kong
     spec:
@@ -23,8 +24,7 @@ spec:
       containers:
       - env:
         - name: KONG_STREAM_LISTEN
-          value: 0.0.0.0:9000, 0.0.0.0:1234, 0.0.0.0:9443 ssl, 0.0.0.0:3000, 0.0.0.0:3001,
-            0.0.0.0:3004
+          value: 0.0.0.0:9000, 0.0.0.0:1234, 0.0.0.0:9443 ssl
         - name: KONG_PROXY_LISTEN
           value: 0.0.0.0:8000 reuseport backlog=16384, 0.0.0.0:8443 http2 ssl reuseport
             backlog=16384
@@ -35,11 +35,11 @@ spec:
         - name: KONG_STATUS_LISTEN
           value: 0.0.0.0:8100
         - name: KONG_DATABASE
-          value: 'off'
+          value: "off"
         - name: KONG_NGINX_WORKER_PROCESSES
-          value: '2'
+          value: "2"
         - name: KONG_KIC
-          value: 'on'
+          value: "on"
         - name: KONG_ADMIN_ACCESS_LOG
           value: /dev/stdout
         - name: KONG_ADMIN_ERROR_LOG
@@ -56,6 +56,16 @@ spec:
               - /bin/bash
               - -c
               - kong quit
+        # livenessProbe:
+        #   failureThreshold: 3
+        #   httpGet:
+        #     path: /status
+        #     port: 8100
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 10
+        #   successThreshold: 1
+        #   timeoutSeconds: 1
         name: proxy
         ports:
         - containerPort: 9000
@@ -76,15 +86,16 @@ spec:
         - containerPort: 8100
           name: metrics
           protocol: TCP
-        - containerPort: 3000
-          name: stream3000
-          protocol: TCP
-        - containerPort: 3001
-          name: stream3001
-          protocol: TCP
-        - containerPort: 3004
-          name: stream3004
-          protocol: TCP
+        # readinessProbe:
+        #   failureThreshold: 3
+        #   httpGet:
+        #     path: /status
+        #     port: 8100
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 10
+        #   successThreshold: 1
+        #   timeoutSeconds: 1
       serviceAccountName: kong-serviceaccount
       volumes:
       - name: kong-serviceaccount-token
@@ -104,6 +115,7 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
                 path: namespace
+
 ---
 apiVersion: v1
 kind: Service
@@ -135,46 +147,36 @@ spec:
     port: 443
     protocol: TCP
     targetPort: 8443
-  - name: stream3000
-    port: 3000
-    protocol: TCP
-    targetPort: 3000
-  - name: stream3001
-    port: 3001
-    protocol: TCP
-    targetPort: 3001
-  - name: stream3004
-    port: 3004
-    protocol: TCP
-    targetPort: 3004
   selector:
     app: proxy-kong
   type: LoadBalancer
----
+
+--- 
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: kong-proxy-hpa
-  namespace: kong
+ name: kong-proxy-hpa
+ namespace: kong
 spec:
-  maxReplicas: 5
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: proxy-kong
-  targetCPUUtilizationPercentage: 90
----
+ scaleTargetRef:
+   apiVersion: apps/v1
+   kind: Deployment
+   name: proxy-kong
+ minReplicas: 1
+ maxReplicas: 5
+ targetCPUUtilizationPercentage: 90
+
+--- 
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: ingress-kong-hpa
-  namespace: kong
+ name: ingress-kong-hpa
+ namespace: kong
 spec:
-  maxReplicas: 5
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: ingress-kong
-  targetCPUUtilizationPercentage: 90
+ scaleTargetRef:
+   apiVersion: apps/v1
+   kind: Deployment
+   name: ingress-kong
+ minReplicas: 1
+ maxReplicas: 5
+ targetCPUUtilizationPercentage: 90
