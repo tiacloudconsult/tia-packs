@@ -1,0 +1,22 @@
+---
+    name: tiacourses_trigger_rule
+    pack: tiacourses_trigger
+    description: Trigger ArgoCD workflow
+    enabled: true
+
+    trigger:
+      type: core.st2.webhook   #registers a webook
+      parameters:
+        url: tiacourses_trigger #name of webhook POST http://10.12.233.1/api/v1/webhooks/tiacourses_trigger
+
+    action:
+      ref: tiacourses_trigger.trigger_workflow
+      parameters:
+        input_vars: "{{ trigger.body.input_vars }}"
+        config_template: "{{ trigger.body.config_template }}"
+        config_file: "{{ trigger.body.config_file }}"
+        git_branch: "{{ trigger.body.git_branch }}"
+        yaml_template: "{{ trigger.body.yaml_template }}"
+        yaml_file: "{{ trigger.body.yaml_file }}"
+        argocdApp_template: "{{ trigger.body.argocdApp_template }}"
+        argocdApp_file: "{{ trigger.body.argocdApp_file }}"

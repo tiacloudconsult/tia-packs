@@ -1,0 +1,180 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: proxy-kong
+  name: proxy-kong
+  namespace: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxy-kong
+  template:
+    metadata:
+      annotations:
+        kuma.io/gateway: enabled
+        kuma.io/service-account-token-volume: kong-serviceaccount-token
+        traffic.sidecar.istio.io/includeInboundPorts: ''
+      labels:
+        app: proxy-kong
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - env:
+        - name: KONG_STREAM_LISTEN
+          value: 0.0.0.0:9000, 0.0.0.0:1234, 0.0.0.0:9443 ssl, 0.0.0.0:3000, 0.0.0.0:3001,
+            0.0.0.0:3004
+        - name: KONG_PROXY_LISTEN
+          value: 0.0.0.0:8000 reuseport backlog=16384, 0.0.0.0:8443 http2 ssl reuseport
+            backlog=16384
+        - name: KONG_PORT_MAPS
+          value: 80:8000, 443:8443
+        - name: KONG_ADMIN_LISTEN
+          value: 0.0.0.0:8444 http2 ssl reuseport backlog=16384
+        - name: KONG_STATUS_LISTEN
+          value: 0.0.0.0:8100
+        - name: KONG_DATABASE
+          value: 'off'
+        - name: KONG_NGINX_WORKER_PROCESSES
+          value: '2'
+        - name: KONG_KIC
+          value: 'on'
+        - name: KONG_ADMIN_ACCESS_LOG
+          value: /dev/stdout
+        - name: KONG_ADMIN_ERROR_LOG
+          value: /dev/stderr
+        - name: KONG_PROXY_ERROR_LOG
+          value: /dev/stderr
+        - name: KONG_ROUTER_FLAVOR
+          value: traditional
+        image: kong:3.3
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - kong quit
+        name: proxy
+        ports:
+        - containerPort: 9000
+          name: stream9000
+          protocol: TCP
+        - containerPort: 1234
+          name: stream1234
+          protocol: TCP
+        - containerPort: 9443
+          name: stream9443
+          protocol: TCP
+        - containerPort: 8000
+          name: proxy
+          protocol: TCP
+        - containerPort: 8443
+          name: proxy-ssl
+          protocol: TCP
+        - containerPort: 8100
+          name: metrics
+          protocol: TCP
+        - containerPort: 3000
+          name: stream3000
+          protocol: TCP
+        - containerPort: 3001
+          name: stream3001
+          protocol: TCP
+        - containerPort: 3004
+          name: stream3004
+          protocol: TCP
+      serviceAccountName: kong-serviceaccount
+      volumes:
+      - name: kong-serviceaccount-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              expirationSeconds: 3607
+              path: token
+          - configMap:
+              items:
+              - key: ca.crt
+                path: ca.crt
+              name: kube-root-ca.crt
+          - downwardAPI:
+              items:
+              - fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+                path: namespace
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+  name: kong-proxy
+  namespace: kong
+spec:
+  ports:
+  - name: stream9000
+    port: 9000
+    protocol: TCP
+    targetPort: 9000
+  - name: stream1234
+    port: 1234
+    protocol: TCP
+    targetPort: 1234
+  - name: stream9443
+    port: 9443
+    protocol: TCP
+    targetPort: 9443
+  - name: proxy
+    port: 80
+    protocol: TCP
+    targetPort: 8000
+  - name: proxy-ssl
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+  - name: stream3000
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  - name: stream3001
+    port: 3001
+    protocol: TCP
+    targetPort: 3001
+  - name: stream3004
+    port: 3004
+    protocol: TCP
+    targetPort: 3004
+  selector:
+    app: proxy-kong
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kong-proxy-hpa
+  namespace: kong
+spec:
+  maxReplicas: 5
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: proxy-kong
+  targetCPUUtilizationPercentage: 90
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ingress-kong-hpa
+  namespace: kong
+spec:
+  maxReplicas: 5
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ingress-kong
+  targetCPUUtilizationPercentage: 90

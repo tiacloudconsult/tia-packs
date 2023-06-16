@@ -19,6 +19,7 @@ def trigger_webhook(username):
         "input_vars": {
             "environment": "tiacourses-dev",
             "project": "dev",
+            "port": f"{port}"
             "username": username,
             "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
             "AppPath": "tiacourses"
