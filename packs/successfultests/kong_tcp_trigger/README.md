@@ -35,5 +35,5 @@ curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Conte
 
 curl -X POST http://127.0.0.1:82/api/v1/webhooks/kong_tcp_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
   "git_branch": "dev",
-  "port_var": "3000"
+  "port_var": "3002"
 }'
