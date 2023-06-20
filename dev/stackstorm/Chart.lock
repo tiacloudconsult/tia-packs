@@ -1,0 +1,15 @@
+dependencies:
+- name: rabbitmq
+  repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+  version: 8.0.2
+- name: mongodb
+  repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+  version: 10.0.1
+- name: external-dns
+  repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+  version: 4.0.0
+- name: redis
+  repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+  version: 12.3.2
+digest: sha256:1ee51f0f1c100d4df799b34fffae42661dba40f73ab90619895554690b5a266e
+generated: "2023-01-17T11:19:32.050114Z"

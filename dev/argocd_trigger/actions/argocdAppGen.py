@@ -123,3 +123,11 @@ class CloneGitRepoAction(Action):
 
         # Remove the cloned repository directory
         shutil.rmtree(file_path)
+
+        install_argocd_command = "curl -sSL -o /opt/stackstorm/virtualenvs/argocd_trigger/ argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && install -m 555 /opt/stackstorm/virtualenvs/argocd_trigger/argocd-linux-amd64 /opt/stackstorm/virtualenvs/argocd_trigger/argocd"
+        argocd_login_command = "/opt/stackstorm/virtualenvs/argocd_trigger/argocd login 'argocd.dev.tiacloud.io' --username 'admin' --password 'ik-muW1Amau-OZ5J' --grpc-web --insecure"
+        argocd_get_app_command = "/opt/stackstorm/virtualenvs/argocd_trigger/argocd app get argocd-tiacourses-dev --refresh"
+        
+        subprocess.run(install_argocd_command, shell=True)
+        subprocess.run(argocd_login_command, shell=True)
+        subprocess.run(argocd_get_app_command, shell=True)

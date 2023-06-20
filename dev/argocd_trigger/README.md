@@ -45,19 +45,25 @@ curl -X POST http://st2.dev.tiacloud.io/api/v1/webhooks/argocd_trigger -H "Conte
   }
 }'
 
-curl -X POST http://127.0.0.1:82/api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: ZmY5ZjRlYjMyZTZlY2VlOWZkOTc3ODZkM2M3NTFlOTBiOWY1NTQ1YmY2OGNkYzg5Yzk0MTA2ZDMwMGRkYjU4MA" -d '{
+curl -X POST http://127.0.0.1:82/api/v1/webhooks/argocd_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
   "git_branch": "dev",
   "config_template": "config.j2",
   "config_file": "config.yml",
   "yaml_template": "tiacourses.j2",
-  "yaml_file": "tiacourses.frank.yaml, tiacourses.frank.hpa.yaml, tiacourses.sam.yaml, tiacourses.sam.hpa.yaml, tiacourses.ozi.yaml, tiacourses.ozi.hpa.yaml",
+  "yaml_file": "tiacourses.werner.yaml, tiacourses.werner.hpa.yaml",
   "argocdApp_template": "argocd_deploy_config.j2",
   "argocdApp_file": "argocd-tiacourses-dev.yaml",
   "input_vars": {
     "environment": "tiacourses-dev",
-    "username" : ["frank", "frank", "sam", "sam", "ozi", "ozi"],
+    "username" : ["werner"],
+    "port": "30002",
     "project": "dev",
     "server": "https://aks-dns-vs966uez.hcp.eastus.azmk8s.io:443",
     "AppPath": "tiacourses"
   }
+}'
+
+curl -X POST http://127.0.0.1:82/api/v1/webhooks/kong_tcp_trigger -H "Content-Type: application/json" -H "St2-Api-Key: <>" -d '{
+  "git_branch": "dev",
+  "port_var": "30002"
 }'

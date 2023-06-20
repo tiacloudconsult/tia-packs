@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: st2-ingress
+  namespace: st2
+  annotations:
+#    cert-argocd.io/issuer: letsencrypt-production
+    ingress.kubernetes.io/ssl-redirect: "false"
+    alb.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: chart-1674032927-st2web
+            port:
+              number: 443
+    host: st2.dev.tiacloud.io
+#   tls:
+#   - hosts:
+#     - st2.dev.tiacloud.io
+#     secretName: ssl-argocd-prod
