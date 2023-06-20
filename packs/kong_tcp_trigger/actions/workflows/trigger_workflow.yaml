@@ -1,0 +1,26 @@
+---
+    version: "1.0"
+
+    description: A workflow to configure kong-proxy TCP ports.
+
+    input:
+      - port_var
+      - git_branch
+      - user_role: "Admin"
+    tasks:
+      portGen:
+        action: kong_tcp_trigger.portGen
+        input:
+          port_var: <% ctx().port_var %>
+          git_branch: <% ctx().git_branch %>
+        next:
+          - when: <% succeeded() %>
+            do:
+              - no_operation
+          - when: <% failed() %>
+            do:
+              - no_operation
+      no_operation:
+        action: core.noop
+
+

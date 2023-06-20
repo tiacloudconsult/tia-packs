@@ -1,0 +1,18 @@
+---
+    name: trigger_workflow
+    description: Trigger port workflow
+    enabled: true
+    runner_type: orquesta   #workflow runner - StackStorm supports two types of workflows - Orquesta and ActionChain.
+    entry_point: workflows/trigger_workflow.yaml  #path to actual trigger, used when there are multiple actions
+
+    parameters:
+      git_branch:
+        type: "string"
+        description: "The name of the branch to clone"
+        default: ""
+        required: true
+      port_var:
+        type: "string"
+        description:  "port number for kong-proxy"
+        default: ""
+        required: true
